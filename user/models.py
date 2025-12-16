@@ -1,17 +1,19 @@
 # user/models.py
-from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import check_password_hash, generate_password_hash
 import enum
+from flask_login import UserMixin
 
 db = SQLAlchemy()
 
 class Role(str, enum.Enum):
-    university_admin = "university_admin"
-    college_admin = "college_admin"
-    student = "student"
+    UNIVERSITY_ADMIN = "UNIVERSITY_ADMIN"
+    COLLEGE_ADMIN = "COLLEGE_ADMIN"
+    STUDENT = "STUDENT"
 
 class College(db.Model):
     __tablename__ = 'colleges'
+
     college_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     college_name = db.Column(db.String(100), nullable=False)
     code = db.Column(db.String(20), nullable=False, unique=True)
@@ -23,9 +25,13 @@ class College(db.Model):
             "code": self.code
         }
 
-class User(db.Model, UserMixin):
+    def __repr__(self):
+        return f"<College(name='{self.college_name}', code='{self.code}')>"
+
+class User(db.Model , UserMixin):
     __tablename__ = 'users'
-    user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # 主键是user_id
+
+    user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     real_name = db.Column(db.String(100), nullable=False)
@@ -33,18 +39,16 @@ class User(db.Model, UserMixin):
     college_id = db.Column(db.Integer, db.ForeignKey('colleges.college_id'), nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
 
+    # 关联学院
     college = db.relationship("College", backref="users")
 
-    # ========== 核心修复：重写get_id方法 ==========
-    def get_id(self):
-        """返回用户唯一标识（必须是字符串）"""
-        return str(self.user_id)  # 用user_id替代默认的id
-
     def set_password(self, password):
-        self.password_hash = password  # 生产环境改为generate_password_hash(password)
+        # self.password_hash = generate_password_hash(password)
+        self.password_hash = password
 
     def check_password(self, password):
-        return self.password_hash == password  # 生产环境改为check_password_hash(self.password_hash, password)
+        # return check_password_hash(self.password_hash, password)
+        return self.password_hash == password
 
     def to_dict(self):
         return {

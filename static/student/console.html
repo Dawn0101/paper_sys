@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -50,6 +51,27 @@
       .table-row-hover {
         @apply hover:bg-gray-50 transition-colors duration-150;
       }
+      
+      /* 自定义滚动条 */
+      .custom-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: #c1c1c1 #f1f1f1;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+      }
     }
   </style>
 </head>
@@ -67,18 +89,19 @@
       <h2 class="text-xs uppercase text-neutral font-semibold mb-3 px-4">控制台</h2>
       <ul class="space-y-1">
         <li>
-          <a href="console.html" class="sidebar-item active">
+          <a href="/student/console" class="sidebar-item active">
             <i class="fa fa-history w-5 text-center"></i>
             <span>浏览记录</span>
           </a>
         </li>
+        <!-- 已移除第二条跳转按钮 -->
       </ul>
 
       <!-- 其他功能 -->
       <h2 class="text-xs uppercase text-neutral font-semibold mb-3 px-4 mt-8">其他功能</h2>
       <ul class="space-y-1">
         <li>
-          <a href="#" class="sidebar-item text-neutral">
+          <a href="#" class="sidebar-item text-neutral cursor-not-allowed">
             <i class="fa fa-star-o w-5 text-center"></i>
             <span>收藏论文</span>
           </a>
@@ -93,18 +116,18 @@
     <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
       <h2 class="text-lg font-semibold">论文浏览记录</h2>
       <div class="flex items-center gap-4">
-        <button class="text-neutral hover:text-primary transition-colors">
-          <i class="fa fa-bell-o text-lg"></i>
+        <button class="text-neutral hover:text-primary transition-colors" id="refresh-btn">
+          <i class="fa fa-refresh text-lg"></i>
         </button>
         <div class="flex items-center gap-2">
           <img src="https://picsum.photos/id/1005/40/40" alt="用户头像" class="w-8 h-8 rounded-full object-cover border border-gray-200">
-          <span class="text-sm font-medium">当前用户</span>
+          <span class="text-sm font-medium" id="current-username">当前用户</span>
         </div>
       </div>
     </header>
 
     <!-- 内容区域 -->
-    <div class="flex-1 overflow-y-auto p-6 bg-gray-50">
+    <div class="flex-1 overflow-y-auto p-6 bg-gray-50 custom-scrollbar">
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div class="p-5 border-b border-gray-200 flex justify-between items-center">
           <h3 class="font-medium">浏览历史记录</h3>
@@ -163,7 +186,8 @@
   </div>
 
   <script>
-    // 当前要删除的记录ID
+    // 当前用户信息
+    let currentUser = {};
     let currentDeleteId = null;
 
     // DOM元素
@@ -173,11 +197,14 @@
     const deleteModal = document.getElementById('delete-modal');
     const cancelDeleteBtn = document.getElementById('cancel-delete');
     const confirmDeleteBtn = document.getElementById('confirm-delete');
+    const refreshBtn = document.getElementById('refresh-btn');
+    const currentUsernameEl = document.getElementById('current-username');
 
     // 初始化页面
     document.addEventListener('DOMContentLoaded', () => {
-      fetchClickHistory();
-
+      // 加载用户信息
+      loadUserInfo();
+      
       // 绑定事件
       cancelDeleteBtn.addEventListener('click', () => {
         deleteModal.classList.add('hidden');
@@ -188,17 +215,100 @@
           deleteRecord(currentDeleteId);
         }
       });
+
+      refreshBtn.addEventListener('click', () => {
+        fetchClickHistory();
+      });
     });
+
+    // 加载用户信息
+    function loadUserInfo() {
+      try {
+        const userInfoStr = localStorage.getItem('userInfo');
+        if (userInfoStr) {
+          currentUser = JSON.parse(userInfoStr);
+          currentUsernameEl.textContent = currentUser.real_name || currentUser.username;
+          // 加载浏览记录
+          fetchClickHistory();
+        } else {
+          console.warn('未找到用户信息，请先登录');
+          // 显示未登录状态
+          renderNotLoggedInState();
+        }
+      } catch (error) {
+        console.error('加载用户信息失败:', error);
+        renderErrorState('用户信息加载失败');
+      }
+    }
+
+    // 渲染未登录状态
+    function renderNotLoggedInState() {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="4" class="px-6 py-16 text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+              <i class="fa fa-user-times text-2xl text-neutral"></i>
+            </div>
+            <h3 class="text-lg font-medium mb-1">未登录</h3>
+            <p class="text-neutral max-w-md mx-auto mb-4">请先登录系统以查看浏览记录</p>
+            <a href="/user/login" class="btn bg-primary text-white hover:bg-primary/90">
+              前往登录
+            </a>
+          </td>
+        </tr>
+      `;
+      currentUsernameEl.textContent = '未登录';
+      totalCountEl.textContent = '0';
+      emptyState.classList.add('hidden');
+    }
+
+    // 渲染错误状态
+    function renderErrorState(message) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="4" class="px-6 py-16 text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-4">
+              <i class="fa fa-exclamation-triangle text-2xl text-red-600"></i>
+            </div>
+            <h3 class="text-lg font-medium mb-1">加载失败</h3>
+            <p class="text-neutral max-w-md mx-auto mb-4">${message}</p>
+            <button onclick="loadUserInfo()" class="btn border border-gray-200 hover:bg-gray-50">
+              重试
+            </button>
+          </td>
+        </tr>
+      `;
+      totalCountEl.textContent = '0';
+      emptyState.classList.add('hidden');
+    }
 
     // 获取浏览记录
     async function fetchClickHistory() {
       try {
-        const response = await fetch('/student/api/click-history', {
+        if (!currentUser || !currentUser.user_id) {
+          showToast('用户信息无效，请重新登录', 'error');
+          renderNotLoggedInState();
+          return;
+        }
+
+        // 显示加载状态
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="4" class="px-6 py-12 text-center text-neutral">
+              <div class="flex flex-col items-center">
+                <i class="fa fa-spinner fa-spin text-primary text-2xl mb-3"></i>
+                <span>加载中...</span>
+              </div>
+            </td>
+          </tr>
+        `;
+
+        // API调用，传递user_id参数
+        const response = await fetch(`/student/api/click-history?user_id=${currentUser.user_id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-          },
-          credentials: 'include' // 包含cookie，用于身份验证
+          }
         });
 
         const data = await response.json();
@@ -210,15 +320,18 @@
           // 显示空状态或表格
           if (data.data.length === 0) {
             emptyState.classList.remove('hidden');
+            tableBody.innerHTML = '';
           } else {
             emptyState.classList.add('hidden');
           }
         } else {
           showToast('获取记录失败: ' + data.message, 'error');
+          renderErrorState('数据加载失败: ' + data.message);
         }
       } catch (error) {
         console.error('获取浏览记录失败:', error);
         showToast('网络错误，无法获取记录', 'error');
+        renderErrorState('网络连接失败');
       }
     }
 
@@ -227,6 +340,7 @@
       tableBody.innerHTML = '';
 
       if (records.length === 0) {
+        renderEmptyState('暂无浏览记录');
         return;
       }
 
@@ -235,9 +349,9 @@
         row.className = 'border-b border-gray-100 table-row-hover';
         row.innerHTML = `
           <td class="px-6 py-4">${index + 1}</td>
-          <td class="px-6 py-4 max-w-md truncate">
-            <a href="${record.pdf_url}" target="_blank" class="text-primary hover:underline">
-              ${record.paper_title}
+          <td class="px-6 py-4 max-w-md">
+            <a href="${record.pdf_url}" target="_blank" class="text-primary hover:underline truncate block">
+              ${record.paper_title || '未知论文'}
             </a>
           </td>
           <td class="px-6 py-4 text-neutral">${record.click_time}</td>
@@ -263,12 +377,33 @@
       });
     }
 
+    // 渲染空状态
+    function renderEmptyState(message) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="4" class="px-6 py-16 text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+              <i class="fa fa-folder-open-o text-2xl text-neutral"></i>
+            </div>
+            <h3 class="text-lg font-medium mb-1">${message}</h3>
+            <p class="text-neutral max-w-md mx-auto">请先浏览一些论文，记录将在这里显示</p>
+          </td>
+        </tr>
+      `;
+      totalCountEl.textContent = '0';
+      emptyState.classList.add('hidden');
+    }
+
     // 删除记录
     async function deleteRecord(clickId) {
       try {
-        const response = await fetch(`/student/api/click-history/${clickId}`, {
-          method: 'DELETE',
-          credentials: 'include'
+        if (!currentUser || !currentUser.user_id) {
+          showToast('用户信息无效，请重新登录', 'error');
+          return;
+        }
+
+        const response = await fetch(`/student/api/click-history/${clickId}?user_id=${currentUser.user_id}`, {
+          method: 'DELETE'
         });
 
         const data = await response.json();
