@@ -1,0 +1,135 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+  /* 设置背景图片 */
+  background-color: #0e0e0e; 
+  /* 防止页面缩放 */
+  -ms-touch-action: manipulation;
+  touch-action: manipulation;
+}
+
+/* 粒子容器样式 */
+#particles-js {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 0; /* 确保粒子在背景之上，但在其他内容之下 */
+  pointer-events: none; /* 允许点击穿透粒子层 */
+}
+
+/* 主容器样式 */
+#container {
+  width: 100%;
+  height: calc(100% - 60px); /* 减去顶部导航栏的高度 */
+  position: relative;
+  z-index: 1; /* 确保主容器在粒子层之上 */
+}
+
+/* 选项卡样式 */
+.nav-tabs {
+  display: flex;
+  align-items: center;
+}
+
+.nav-tabs .tab {
+  margin-left: 20px;
+  font-size: 18px;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+  user-select: text; /* 确保选项卡文字可以被选中 */
+  pointer-events: auto; /* 确保选项卡可以正常交互 */
+}
+
+.nav-tabs .tab:hover {
+  color: #00ffff;
+}
+
+/* 竖线分隔符样式 */
+.nav-tabs .divider {
+  height: 20px;
+  width: 1px;
+  background-color: #ffffff;
+  margin-left: 20px;
+}
+
+/* 中间搜索框 */
+.search-box {
+  flex-grow: 1;
+  max-width: 300px; /* 将最大宽度调整为300px */
+  margin: 0 40px;   /* 增加左右外边距 */
+}
+
+.search-box input {
+  width: 100%;
+  height: 35px;
+  border: none;
+  border-radius: 5px;
+  padding: 0 10px;
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+  user-select: text; /* 确保可以选中搜索框中的文本 */
+  pointer-events: auto; /* 确保搜索框可以正常交互 */
+}
+
+/* 顶部导航栏样式 */
+.top-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px; /* 导航栏高度 */
+  background-color: rgba(0, 0, 0, 0.8); /* 半透明黑色背景 */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  box-sizing: border-box;
+  z-index: 1; /* 确保导航栏在粒子层之上 */
+}
+
+/* 左侧团队信息 */
+.team-info {
+  display: flex;
+  align-items: center;
+}
+
+.team-info img {
+  height: 40px;
+  margin-right: 10px;
+}
+
+.team-info .team-name {
+  font-size: 24px;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+}
+
+/* 页脚样式 */
+.footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background-color: rgba(0, 0, 0, 0.8); /* 半透明黑色背景 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+  z-index: 1; /* 确保页脚在粒子层之上 */
+}
+
+/* 扇形文字发光效果 */
+.glow-text {
+  font-size: 18px;
+  font-family: Arial, sans-serif;
+  fill: #ffffff; /* 白色字体 */
+  pointer-events: none;
+  filter: url(#glow); /* 添加发光效果 */
+}

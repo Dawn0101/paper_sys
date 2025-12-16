@@ -1,0 +1,26 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+    <!-- 定义渐变 -->
+    <defs>
+      <linearGradient id="foxGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:#f47920;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#d35400;stop-opacity:1" />
+      </linearGradient>
+    </defs>
+    <!-- 背景圆形 -->
+    <circle cx="100" cy="100" r="100" fill="#ffffff" />
+    <!-- 狐狸头部，使用渐变 -->
+    <path d="M 100,50 L 150,125 L 50,125 Z" fill="url(#foxGradient)" />
+    <!-- 左耳内部 -->
+    <path d="M 75,87.5 L 90,112.5 L 60,112.5 Z" fill="#ffffff" />
+    <!-- 右耳内部 -->
+    <path d="M 125,87.5 L 110,112.5 L 140,112.5 Z" fill="#ffffff" />
+    <!-- 脸部 -->
+    <path d="M 100,75 L 125,125 L 75,125 Z" fill="#ffffff" />
+    <!-- 左眼 -->
+    <circle cx="85" cy="105" r="5" fill="#000000" />
+    <!-- 右眼 -->
+    <circle cx="115" cy="105" r="5" fill="#000000" />
+    <!-- 鼻子 -->
+    <path d="M 100,115 L 105,125 L 95,125 Z" fill="#000000" />
+  </svg>
+  

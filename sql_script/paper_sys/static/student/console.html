@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>论文浏览记录管理</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <!-- 配置Tailwind自定义主题 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36CFC9',
+            neutral: '#86909C',
+            light: '#F2F3F5',
+            dark: '#1D2129'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .sidebar-item {
+        @apply flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 cursor-pointer;
+      }
+      .sidebar-item.active {
+        @apply bg-primary/10 text-primary font-medium;
+      }
+      .sidebar-item:hover:not(.active) {
+        @apply bg-gray-100;
+      }
+      .btn {
+        @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+      }
+      .btn-danger {
+        @apply bg-red-50 text-red-600 hover:bg-red-100;
+      }
+      .table-row-hover {
+        @apply hover:bg-gray-50 transition-colors duration-150;
+      }
+    }
+  </style>
+</head>
+<body class="font-inter bg-gray-50 text-dark h-screen flex overflow-hidden">
+  <!-- 左侧导航栏 -->
+  <aside class="w-64 bg-white border-r border-gray-200 flex-shrink-0 transition-all duration-300 ease-in-out">
+    <div class="p-5 border-b border-gray-200">
+      <h1 class="text-xl font-bold text-primary flex items-center gap-2">
+        <i class="fa fa-graduation-cap"></i>
+        <span>学术资源管理系统</span>
+      </h1>
+    </div>
+
+    <nav class="p-4">
+      <h2 class="text-xs uppercase text-neutral font-semibold mb-3 px-4">控制台</h2>
+      <ul class="space-y-1">
+        <li>
+          <a href="console.html" class="sidebar-item active">
+            <i class="fa fa-history w-5 text-center"></i>
+            <span>浏览记录</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- 其他功能 -->
+      <h2 class="text-xs uppercase text-neutral font-semibold mb-3 px-4 mt-8">其他功能</h2>
+      <ul class="space-y-1">
+        <li>
+          <a href="#" class="sidebar-item text-neutral">
+            <i class="fa fa-star-o w-5 text-center"></i>
+            <span>收藏论文</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- 主内容区 -->
+  <main class="flex-1 flex flex-col overflow-hidden">
+    <!-- 顶部导航 -->
+    <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+      <h2 class="text-lg font-semibold">论文浏览记录</h2>
+      <div class="flex items-center gap-4">
+        <button class="text-neutral hover:text-primary transition-colors">
+          <i class="fa fa-bell-o text-lg"></i>
+        </button>
+        <div class="flex items-center gap-2">
+          <img src="https://picsum.photos/id/1005/40/40" alt="用户头像" class="w-8 h-8 rounded-full object-cover border border-gray-200">
+          <span class="text-sm font-medium">当前用户</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 内容区域 -->
+    <div class="flex-1 overflow-y-auto p-6 bg-gray-50">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+          <h3 class="font-medium">浏览历史记录</h3>
+          <div class="text-sm text-neutral">
+            共 <span id="total-count" class="text-primary font-medium">0</span> 条记录
+          </div>
+        </div>
+
+        <!-- 表格区域 -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50 border-b border-gray-200">
+                <th class="text-left px-6 py-4 font-medium text-neutral">序号</th>
+                <th class="text-left px-6 py-4 font-medium text-neutral">论文标题</th>
+                <th class="text-left px-6 py-4 font-medium text-neutral">浏览时间</th>
+                <th class="text-left px-6 py-4 font-medium text-neutral">操作</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body">
+              <!-- 加载状态 -->
+              <tr>
+                <td colspan="4" class="px-6 py-12 text-center text-neutral">
+                  <div class="flex flex-col items-center">
+                    <i class="fa fa-spinner fa-spin text-primary text-2xl mb-3"></i>
+                    <span>加载中...</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 空状态 -->
+        <div id="empty-state" class="hidden px-6 py-16 text-center">
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+            <i class="fa fa-folder-open-o text-2xl text-neutral"></i>
+          </div>
+          <h3 class="text-lg font-medium mb-1">暂无浏览记录</h3>
+          <p class="text-neutral max-w-md mx-auto">您还没有浏览过任何论文，浏览论文后会在这里显示记录</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 确认删除模态框 -->
+  <div id="delete-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4 transform transition-all">
+      <h3 class="text-lg font-medium mb-2">确认删除</h3>
+      <p class="text-neutral mb-6">您确定要删除这条浏览记录吗？此操作不可撤销。</p>
+      <div class="flex justify-end gap-3">
+        <button id="cancel-delete" class="btn border border-gray-200 hover:bg-gray-50">取消</button>
+        <button id="confirm-delete" class="btn bg-red-600 text-white hover:bg-red-700">删除</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 当前要删除的记录ID
+    let currentDeleteId = null;
+
+    // DOM元素
+    const tableBody = document.getElementById('history-table-body');
+    const totalCountEl = document.getElementById('total-count');
+    const emptyState = document.getElementById('empty-state');
+    const deleteModal = document.getElementById('delete-modal');
+    const cancelDeleteBtn = document.getElementById('cancel-delete');
+    const confirmDeleteBtn = document.getElementById('confirm-delete');
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchClickHistory();
+
+      // 绑定事件
+      cancelDeleteBtn.addEventListener('click', () => {
+        deleteModal.classList.add('hidden');
+      });
+
+      confirmDeleteBtn.addEventListener('click', () => {
+        if (currentDeleteId) {
+          deleteRecord(currentDeleteId);
+        }
+      });
+    });
+
+    // 获取浏览记录
+    async function fetchClickHistory() {
+      try {
+        const response = await fetch('/student/api/click-history', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include' // 包含cookie，用于身份验证
+        });
+
+        const data = await response.json();
+
+        if (data.code === 200) {
+          renderTable(data.data);
+          totalCountEl.textContent = data.data.length;
+
+          // 显示空状态或表格
+          if (data.data.length === 0) {
+            emptyState.classList.remove('hidden');
+          } else {
+            emptyState.classList.add('hidden');
+          }
+        } else {
+          showToast('获取记录失败: ' + data.message, 'error');
+        }
+      } catch (error) {
+        console.error('获取浏览记录失败:', error);
+        showToast('网络错误，无法获取记录', 'error');
+      }
+    }
+
+    // 渲染表格
+    function renderTable(records) {
+      tableBody.innerHTML = '';
+
+      if (records.length === 0) {
+        return;
+      }
+
+      records.forEach((record, index) => {
+        const row = document.createElement('tr');
+        row.className = 'border-b border-gray-100 table-row-hover';
+        row.innerHTML = `
+          <td class="px-6 py-4">${index + 1}</td>
+          <td class="px-6 py-4 max-w-md truncate">
+            <a href="${record.pdf_url}" target="_blank" class="text-primary hover:underline">
+              ${record.paper_title}
+            </a>
+          </td>
+          <td class="px-6 py-4 text-neutral">${record.click_time}</td>
+          <td class="px-6 py-4">
+            <button
+              class="btn btn-danger delete-btn"
+              data-id="${record.click_id}"
+            >
+              <i class="fa fa-trash-o mr-1"></i> 删除
+            </button>
+          </td>
+        `;
+
+        tableBody.appendChild(row);
+      });
+
+      // 绑定删除按钮事件
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          currentDeleteId = e.currentTarget.getAttribute('data-id');
+          deleteModal.classList.remove('hidden');
+        });
+      });
+    }
+
+    // 删除记录
+    async function deleteRecord(clickId) {
+      try {
+        const response = await fetch(`/student/api/click-history/${clickId}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+
+        const data = await response.json();
+
+        if (data.code === 200) {
+          showToast('删除成功');
+          deleteModal.classList.add('hidden');
+          fetchClickHistory(); // 重新加载数据
+        } else {
+          showToast('删除失败: ' + data.message, 'error');
+        }
+      } catch (error) {
+        console.error('删除记录失败:', error);
+        showToast('网络错误，删除失败', 'error');
+      }
+    }
+
+    // 显示提示消息
+    function showToast(message, type = 'success') {
+      // 创建toast元素
+      const toast = document.createElement('div');
+      toast.className = `fixed bottom-6 right-6 px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 z-50 transition-all duration-300 transform translate-y-10 opacity-0`;
+
+      // 设置样式
+      if (type === 'success') {
+        toast.classList.add('bg-green-50', 'text-green-600', 'border', 'border-green-200');
+        toast.innerHTML = `<i class="fa fa-check-circle"></i><span>${message}</span>`;
+      } else {
+        toast.classList.add('bg-red-50', 'text-red-600', 'border', 'border-red-200');
+        toast.innerHTML = `<i class="fa fa-exclamation-circle"></i><span>${message}</span>`;
+      }
+
+      // 添加到页面
+      document.body.appendChild(toast);
+
+      // 显示动画
+      setTimeout(() => {
+        toast.classList.remove('translate-y-10', 'opacity-0');
+      }, 10);
+
+      // 3秒后隐藏
+      setTimeout(() => {
+        toast.classList.add('translate-y-10', 'opacity-0');
+        setTimeout(() => {
+          document.body.removeChild(toast);
+        }, 300);
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

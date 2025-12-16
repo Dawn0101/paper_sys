@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>论文搜索系统</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    :root {
+      --primary-color: #3498db;
+      --secondary-color: #2c3e50;
+      --accent-color: #e74c3c;
+      --light-color: #ecf0f1;
+      --dark-color: #2c3e50;
+    }
+    
+    body {
+      background-color: #f8f9fa;
+      color: var(--dark-color);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .navbar {
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      background-color: #fff;
+    }
+    
+    .navbar-brand {
+      font-weight: bold;
+      color: var(--primary-color);
+      letter-spacing: 0.5px;
+    }
+    
+    .search-container {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      color: white;
+      padding: 3rem 0;
+      margin-bottom: 2rem;
+    }
+    
+    .search-title {
+      font-weight: bold;
+      margin-bottom: 1.5rem;
+    }
+    
+    .search-input-group {
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .search-input {
+      border: none;
+      padding: 0.75rem 1.5rem;
+    }
+    
+    .search-btn {
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+    }
+    
+    .advanced-search-panel {
+      background-color: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    
+    .paper-card {
+      border-radius: 10px;
+      border: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    
+    .paper-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    .paper-title {
+      color: var(--primary-color);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 0.25rem 0;
+      border-radius: 3px;
+    }
+    
+    .paper-title:hover {
+      text-decoration: underline;
+      background-color: rgba(52, 152, 219, 0.05);
+    }
+    
+    .paper-authors {
+      color: #666;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      margin-bottom: 0.8rem;
+    }
+    
+    .detail-badge {
+      background-color: #eee;
+      color: #555;
+      border-radius: 20px;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.85rem;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+      display: inline-block;
+    }
+    
+    .footer {
+      background-color: var(--secondary-color);
+      color: white;
+      padding: 2rem 0;
+      margin-top: 3rem;
+    }
+    
+    .result-count {
+      color: var(--secondary-color);
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+    }
+    
+    .no-results {
+      text-align: center;
+      padding: 3rem;
+      color: #777;
+    }
+    
+    /* 论文详情模态框样式 */
+    /* 论文详情模态框样式 - 优化论文信息部分 */
+.paper-detail-modal .modal-content {
+  border-radius: 15px;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.paper-detail-modal .modal-header {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+  border-bottom: none;
+  border-radius: 15px 15px 0 0;
+  padding: 1.5rem 2rem;
+}
+
+.paper-detail-modal .modal-title {
+  font-weight: 600;
+  font-size: 1.4rem;
+  line-height: 1.4;
+}
+
+.paper-detail-modal .modal-body {
+  padding: 2rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.paper-detail-section {
+  margin-bottom: 2rem;
+}
+
+.paper-detail-section:last-child {
+  margin-bottom: 0;
+}
+
+.paper-detail-section h5 {
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--light-color);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.paper-authors-list {
+  font-size: 1.1rem;
+  color: var(--dark-color);
+}
+
+.paper-abstract {
+  line-height: 1.6;
+  text-align: justify;
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-color);
+}
+
+/* 优化论文信息网格布局 - 根据图片样式重新设计 */
+.paper-meta-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.meta-item {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: 12px;
+  border: 2px solid #e3f2fd;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.meta-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), #64b5f6);
+}
+
+.meta-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(52, 152, 219, 0.15);
+  border-color: var(--primary-color);
+}
+
+.meta-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  display: block;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(52, 152, 219, 0.2);
+}
+
+.meta-label {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* 为不同信息项添加个性化图标 */
+.meta-item:nth-child(1)::after {
+  content: '📈';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.2rem;
+  opacity: 0.3;
+}
+
+.meta-item:nth-child(2)::after {
+  content: '📅';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.2rem;
+  opacity: 0.3;
+}
+
+.meta-item:nth-child(3)::after {
+  content: '🏷️';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.2rem;
+  opacity: 0.3;
+}
+
+.meta-item:nth-child(4)::after {
+  content: '🔗';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.2rem;
+  opacity: 0.3;
+}
+
+/* DOI链接特殊样式 */
+.meta-item:last-child .meta-value {
+  font-size: 0.9rem;
+  word-break: break-all;
+  color: #2c3e50;
+  font-weight: normal;
+}
+
+.paper-detail-modal .modal-footer {
+  border-top: 1px solid #eee;
+  padding: 1.5rem 2rem;
+  background: #f8f9fa;
+}
+
+.btn-full-width {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.citation-count {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 2rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .paper-detail-modal .modal-body {
+    padding: 1.5rem;
+    max-height: 60vh;
+  }
+  
+  .paper-meta-info {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .meta-item {
+    padding: 1rem 0.5rem;
+  }
+  
+  .meta-value {
+    font-size: 1.5rem;
+  }
+  
+  .paper-detail-modal .modal-title {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .paper-meta-info {
+    grid-template-columns: 1fr;
+  }
+  
+  .meta-item {
+    padding: 1.2rem 1rem;
+  }
+}
+
+    
+  </style>
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container">
+      <a class="navbar-brand" href="/">
+        <i class="bi bi-journal-text me-2"></i>
+        论文搜索系统
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="/">首页</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">最新论文</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">热门论文</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">学科分类</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 搜索区域 -->
+  <section class="search-container">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+          <h1 class="search-title">搜索学术论文</h1>
+          <div class="input-group search-input-group">
+            <input type="text" id="simple-search" class="form-control search-input" placeholder="输入关键词、标题、作者等...">
+            <button id="search-button" class="btn search-btn">
+              <i class="bi bi-search me-2"></i>搜索
+            </button>
+          </div>
+          <div class="mt-3">
+            <button class="btn btn-link text-white" id="advanced-toggle">
+              <i class="bi bi-sliders me-1"></i>高级搜索
+            </button>
+          </div>
+
+          <!-- 高级搜索面板 -->
+          <div class="advanced-search-panel d-none" id="advanced-search-panel">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">论文标题</label>
+                <input type="text" id="title-search" class="form-control" placeholder="输入论文标题...">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">作者</label>
+                <input type="text" id="author-search" class="form-control" placeholder="输入作者姓名...">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">机构</label>
+                <input type="text" id="affiliation-search" class="form-control" placeholder="输入机构名称...">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">分类</label>
+                <input type="text" id="category-search" class="form-control" placeholder="如: cs.AI, Computer Science...">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">DOI</label>
+                <input type="text" id="doi-search" class="form-control" placeholder="输入DOI号...">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">发表日期早于</label>
+                <input type="date" id="date-after-search" class="form-control">
+              </div>
+              <div class="col-12 mt-3">
+                <button id="advanced-search-btn" class="btn btn-primary me-2">搜索</button>
+                <button id="close-advanced" class="btn btn-outline-secondary">取消</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 搜索结果区域 -->
+  <section class="container" id="results-section">
+    <div class="row">
+      <div class="col-12">
+        <div class="d-none" id="results-info">
+          <h2 class="result-count" id="result-count"></h2>
+          <div id="results-container" class="row"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 论文详情模态框 -->
+  <div class="modal fade paper-detail-modal" id="paperDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="paperDetailTitle">论文标题</h4>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="loading-spinner" id="modalLoading">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">加载中...</span>
+            </div>
+            <p class="mt-2">正在加载论文详情...</p>
+          </div>
+          
+          <div id="paperDetailContent" style="display: none;">
+            <!-- 作者信息 -->
+            <div class="paper-detail-section">
+              <h5><i class="bi bi-people me-2"></i>作者信息</h5>
+              <div class="paper-authors-list" id="paperDetailAuthors"></div>
+            </div>
+            
+            <!-- 摘要 -->
+            <div class="paper-detail-section">
+              <h5><i class="bi bi-file-text me-2"></i>摘要</h5>
+              <div class="paper-abstract" id="paperDetailAbstract"></div>
+            </div>
+            
+            <!-- 元信息 -->
+            <div class="paper-detail-section">
+              <h5><i class="bi bi-info-circle me-2"></i>论文信息</h5>
+              <div class="paper-meta-info">
+                <div class="meta-item">
+                  <span class="meta-value" id="paperCitationCount">0</span>
+                  <span class="meta-label">被引用量</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-value" id="paperPublishDate">-</span>
+                  <span class="meta-label">发表年份</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-value" id="paperCategory">-</span>
+                  <span class="meta-label">分类</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-value" id="paperDoi">-</span>
+                  <span class="meta-label">DOI</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+          <button type="button" class="btn btn-primary" id="viewFullTextBtn">
+            <i class="bi bi-journal-text me-2"></i>查看原文
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 页脚 -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <h5>关于论文搜索系统</h5>
+          <p>提供海量学术论文的搜索与浏览服务，助力学术研究与交流。</p>
+        </div>
+        <div class="col-md-3">
+          <h5>快速链接</h5>
+          <ul class="list-unstyled">
+            <li><a href="#" class="text-white">首页</a></li>
+            <li><a href="#" class="text-white">最新论文</a></li>
+            <li><a href="#" class="text-white">热门论文</a></li>
+            <li><a href="#" class="text-white">学科分类</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3">
+          <h5>联系我们</h5>
+          <ul class="list-unstyled">
+            <li><a href="#" class="text-white">反馈建议</a></li>
+            <li><a href="#" class="text-white">加入我们</a></li>
+          </ul>
+        </div>
+      </div>
+      <hr class="mt-4 mb-4 bg-light">
+      <div class="text-center">
+        <p>&copy; 2023 论文搜索系统 版权所有</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 获取DOM元素
+      const simpleSearch = document.getElementById('simple-search');
+      const searchButton = document.getElementById('search-button');
+      const advancedToggle = document.getElementById('advanced-toggle');
+      const advancedPanel = document.getElementById('advanced-search-panel');
+      const advancedSearchBtn = document.getElementById('advanced-search-btn');
+      const closeAdvanced = document.getElementById('close-advanced');
+      const resultsInfo = document.getElementById('results-info');
+      const resultCount = document.getElementById('result-count');
+      const resultsContainer = document.getElementById('results-container');
+      
+      // 模态框相关元素
+      const paperDetailModal = new bootstrap.Modal(document.getElementById('paperDetailModal'));
+      const paperDetailTitle = document.getElementById('paperDetailTitle');
+      const paperDetailAuthors = document.getElementById('paperDetailAuthors');
+      const paperDetailAbstract = document.getElementById('paperDetailAbstract');
+      const paperCitationCount = document.getElementById('paperCitationCount');
+      const paperPublishDate = document.getElementById('paperPublishDate');
+      const paperCategory = document.getElementById('paperCategory');
+      const paperDoi = document.getElementById('paperDoi');
+      const viewFullTextBtn = document.getElementById('viewFullTextBtn');
+      const modalLoading = document.getElementById('modalLoading');
+      const paperDetailContent = document.getElementById('paperDetailContent');
+      
+      let currentPaperLink = '';
+
+      // 切换高级搜索面板
+      advancedToggle.addEventListener('click', function() {
+        advancedPanel.classList.toggle('d-none');
+      });
+      
+      closeAdvanced.addEventListener('click', function() {
+        advancedPanel.classList.add('d-none');
+      });
+      
+      // 简单搜索事件
+      searchButton.addEventListener('click', function() {
+        const query = simpleSearch.value.trim();
+        if (query) {
+          performSearch({ title: query });
+        }
+      });
+      
+      simpleSearch.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          const query = this.value.trim();
+          if (query) {
+            performSearch({ title: query });
+          }
+        }
+      });
+      
+      // 高级搜索事件
+      advancedSearchBtn.addEventListener('click', function() {
+        const searchParams = {
+          title: document.getElementById('title-search').value.trim(),
+          author: document.getElementById('author-search').value.trim(),
+          affiliation: document.getElementById('affiliation-search').value.trim(),
+          category: document.getElementById('category-search').value.trim(),
+          doi: document.getElementById('doi-search').value.trim(),
+          date_after: document.getElementById('date-after-search').value.trim()
+        };
+        
+        // 过滤掉空值
+        Object.keys(searchParams).forEach(key => {
+          if (!searchParams[key]) delete searchParams[key];
+        });
+        
+        if (Object.keys(searchParams).length > 0) {
+          performSearch(searchParams);
+          advancedPanel.classList.add('d-none');
+        } else {
+          alert('请至少输入一个搜索条件');
+        }
+      });
+      
+      // 执行搜索
+      async function performSearch(params) {
+        try {
+          // 构建查询参数
+          const queryString = Object.keys(params)
+            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+            .join('&');
+          
+          // 显示加载状态
+          resultsContainer.innerHTML = '<div class="col-12 text-center p-5"><div class="spinner-border text-primary" role="status"></div></div>';
+          resultsInfo.classList.remove('d-none');
+          
+          // 发起API请求
+          const response = await fetch(`/user/api/search?${queryString}`);
+          
+          if (!response.ok) {
+            throw new Error('搜索请求失败');
+          }
+          
+          const data = await response.json();
+          displayResults(data, params);
+        } catch (error) {
+          console.error('搜索出错:', error);
+          resultsContainer.innerHTML = '<div class="col-12 text-center p-5">搜索过程中发生错误，请稍后再试</div>';
+        }
+      }
+
+      // // 显示搜索结果
+      // function displayResults(papers, searchParams) {
+      //   resultsContainer.innerHTML = '';
+
+      //   // 显示结果数量
+      //   resultCount.textContent = `找到 ${papers.length} 条相关论文`;
+      //   resultsInfo.classList.remove('d-none');
+
+      //   if (papers.length === 0) {
+      //     resultsContainer.innerHTML = '<div class="col-12 no-results"><i class="bi bi-search" style="font-size: 3rem;"></i><p class="mt-3">没有找到符合条件的论文</p></div>';
+      //     return;
+      //   }
+
+      //   // 构建结果列表
+      //   papers.forEach(paper => {
+      //     const paperCard = document.createElement('div');
+      //     paperCard.className = 'col-lg-6 mb-4';
+
+      //     // 格式化日期 - 优先使用publish_date
+      //     let formattedDate = '未知日期';
+      //     if (paper.publish_date) {
+      //       const date = new Date(paper.publish_date);
+      //       formattedDate = date.toLocaleDateString();
+      //     } else if (paper.created_at) {
+      //       const date = new Date(paper.created_at);
+      //       formattedDate = date.toLocaleDateString() + ' (创建日期)';
+      //     }
+
+      //     // 构建标签内容
+      //     let badges = '';
+      //     if (paper.all_categories) {
+      //       badges += `<span class="detail-badge"><i class="bi bi-tags"></i> 分类: ${paper.all_categories}</span>`;
+      //     }
+      //     if (paper.doi) {
+      //       badges += `<span class="detail-badge"><i class="bi bi-link-45deg"></i> DOI: ${paper.doi}</span>`;
+      //     }
+      //     if (paper.arxiv_base_id) {
+      //       badges += `<span class="detail-badge"><i class="bi bi-file-earmark-text"></i> arXiv:${paper.arxiv_base_id}</span>`;
+      //     }
+
+      //     // 作者信息
+      //     const authors = paper.authors || '未知作者';
+
+      //     paperCard.innerHTML = `
+      //       <div class="card paper-card h-100">
+      //         <div class="card-body">
+      //           <h5 class="paper-title" data-paper-id="${paper.paper_id}">${paper.title}</h5>
+      //           <div class="paper-authors">
+      //             <i class="bi bi-people"></i> ${authors}
+      //           </div>
+      //           <div class="paper-badges my-2">
+      //             ${badges}
+      //           </div>
+      //           <div class="d-flex justify-content-between align-items-center mt-3">
+      //             <small class="text-muted"><i class="bi bi-calendar3"></i> ${formattedDate}</small>
+      //             <button class="btn btn-sm btn-outline-primary view-details"
+      //                     data-paper-id="${paper.paper_id}"
+      //                     data-doi="${paper.doi || ''}"
+      //                     data-link="${paper.link || ''}"
+      //                     data-has-external="${paper.link || paper.doi ? 'true' : 'false'}">
+      //               ${paper.link || paper.doi ? '查看原文' : '查看详情'}
+      //             </button>
+      //           </div>
+      //         </div>
+      //       </div>
+      //     `;
+
+      //     resultsContainer.appendChild(paperCard);
+      //   });
+
+      //   // 为论文标题添加点击事件
+      //   document.querySelectorAll('.paper-title').forEach(title => {
+      //     title.addEventListener('click', function() {
+      //       const paperId = this.getAttribute('data-paper-id');
+      //       showPaperDetails(paperId);
+      //     });
+      //   });
+
+      //   // 为查看详情/原文按钮添加事件
+      //   document.querySelectorAll('.view-details').forEach(button => {
+      //     button.addEventListener('click', function(e) {
+      //       e.stopPropagation(); // 阻止事件冒泡
+      //       const paperId = this.getAttribute('data-paper-id');
+      //       const doi = this.getAttribute('data-doi');
+      //       const link = this.getAttribute('data-link');
+      //       const hasExternalLink = this.getAttribute('data-has-external') === 'true';
+
+      //       if (hasExternalLink) {
+      //         // 优先使用论文的直接链接
+      //         if (link) {
+      //           window.open(link, '_blank');
+      //         }
+      //         // 如果没有直接链接但有DOI，使用DOI链接
+      //         else if (doi) {
+      //           const doiUrl = doi.startsWith('http') ? doi : `https://doi.org/${doi}`;
+      //           window.open(doiUrl, '_blank');
+      //         }
+      //       } else {
+      //         // 没有外部链接，显示详情模态框
+      //         showPaperDetails(paperId);
+      //       }
+      //     });
+      //   });
+      // }
+            // 显示搜索结果
+      function displayResults(papers, searchParams) {
+          resultsContainer.innerHTML = '';
+
+          // 显示结果数量
+          resultCount.textContent = `找到 ${papers.length} 条相关论文`;
+          resultsInfo.classList.remove('d-none');
+
+          if (papers.length === 0) {
+              resultsContainer.innerHTML = '<div class="col-12 no-results"><i class="bi bi-search" style="font-size: 3rem;"></i><p class="mt-3">没有找到符合条件的论文</p></div>';
+              return;
+          }
+
+          // 构建结果列表
+          papers.forEach(paper => {
+              const paperCard = document.createElement('div');
+              paperCard.className = 'col-lg-6 mb-4';
+
+              // 格式化日期
+              let formattedDate = '未知日期';
+              if (paper.publish_date) {
+                  const date = new Date(paper.publish_date);
+                  formattedDate = date.toLocaleDateString();
+              }
+
+              // 构建标签内容
+              let badges = '';
+              if (paper.category) {
+                  badges += `<span class="detail-badge"><i class="bi bi-tags"></i> 分类: ${paper.category.code}</span>`;
+              }
+              if (paper.doi) {
+                  badges += `<span class="detail-badge"><i class="bi bi-link-45deg"></i> DOI: ${paper.doi}</span>`;
+              }
+              if (paper.arxiv_id) {
+                  badges += `<span class="detail-badge"><i class="bi bi-file-earmark-text"></i> arXiv:${paper.arxiv_id}</span>`;
+              }
+
+              // 处理作者信息 - 修正部分
+              let authorsDisplay = '未知作者';
+              if (paper.authors && Array.isArray(paper.authors)) {
+                  // 提取作者姓名
+                  authorsDisplay = paper.authors.map(author => author.name).join(', ');
+              } else if (typeof paper.authors === 'string') {
+                  authorsDisplay = paper.authors;
+              }
+
+              paperCard.innerHTML = `
+                  <div class="card paper-card h-100">
+                      <div class="card-body">
+                          <h5 class="paper-title" data-paper-id="${paper.paper_id}">${paper.title}</h5>
+                          <div class="paper-authors">
+                              <i class="bi bi-people"></i> ${authorsDisplay}
+                          </div>
+                          <div class="paper-badges my-2">
+                              ${badges}
+                          </div>
+                          <div class="d-flex justify-content-between align-items-center mt-3">
+                              <small class="text-muted"><i class="bi bi-calendar3"></i> ${formattedDate}</small>
+                              <button class="btn btn-sm btn-outline-primary view-details"
+                                      data-paper-id="${paper.paper_id}"
+                                      data-doi="${paper.doi || ''}"
+                                      data-pdf-url="${paper.pdf_url || ''}"
+                                      data-has-external="${paper.pdf_url || paper.doi ? 'true' : 'false'}">
+                                  ${paper.pdf_url || paper.doi ? '查看原文' : '查看详情'}
+                              </button>
+                          </div>
+                      </div>
+                  </div>
+              `;
+
+              resultsContainer.appendChild(paperCard);
+          });
+
+          // 为论文标题添加点击事件
+          document.querySelectorAll('.paper-title').forEach(title => {
+              title.addEventListener('click', function() {
+                  const paperId = this.getAttribute('data-paper-id');
+                  showPaperDetails(paperId);
+              });
+          });
+
+          // 为查看详情/原文按钮添加事件
+          document.querySelectorAll('.view-details').forEach(button => {
+              button.addEventListener('click', function(e) {
+                  e.stopPropagation();
+                  const paperId = this.getAttribute('data-paper-id');
+                  const doi = this.getAttribute('data-doi');
+                  const pdfUrl = this.getAttribute('data-pdf-url');
+                  const hasExternalLink = this.getAttribute('data-has-external') === 'true';
+
+                  if (hasExternalLink) {
+                      // 优先使用PDF链接
+                      if (pdfUrl) {
+                          window.open(pdfUrl, '_blank');
+                      }
+                      // 如果没有PDF链接但有DOI，使用DOI链接
+                      else if (doi) {
+                          const doiUrl = doi.startsWith('http') ? doi : `https://doi.org/${doi}`;
+                          window.open(doiUrl, '_blank');
+                      }
+                  } else {
+                      showPaperDetails(paperId);
+                  }
+              });
+          });
+      }
+
+      //       // 显示论文详情模态框
+      // async function showPaperDetails(paperId) {
+      //     try {
+      //         modalLoading.style.display = 'block';
+      //         paperDetailContent.style.display = 'none';
+      //         paperDetailModal.show();
+              
+      //         const response = await fetch(`/user/api/paper/${paperId}`);
+              
+      //         if (!response.ok) {
+      //             throw new Error('获取论文详情失败');
+      //         }
+              
+      //         const paper = await response.json();
+              
+      //         // 更新模态框内容
+      //         paperDetailTitle.textContent = paper.title;
+              
+      //         // 处理作者信息显示 - 修正部分
+      //         let authorsHtml = '未知作者';
+      //         if (paper.authors && Array.isArray(paper.authors)) {
+      //             authorsHtml = paper.authors.map(author => {
+      //                 let authorInfo = author.name;
+      //                 if (author.affiliation) {
+      //                     authorInfo += ` (${author.affiliation})`;
+      //                 }
+      //                 if (author.orcid) {
+      //                     authorInfo += ` <small class="text-muted">ORCID: ${author.orcid}</small>`;
+      //                 }
+      //                 return `<div class="author-item mb-2">${authorInfo}</div>`;
+      //             }).join('');
+      //         }
+      //         paperDetailAuthors.innerHTML = authorsHtml;
+              
+      //         paperDetailAbstract.textContent = paper.abstract || '暂无摘要信息';
+      //         paperCitationCount.textContent = paper.citation_count || 0;
+      //         paperPublishDate.textContent = paper.publish_date ? new Date(paper.publish_date).toLocaleDateString() : '-';
+      //         paperCategory.textContent = paper.category ? ( paper.category.code) : '-';
+      //         paperDoi.textContent = paper.doi || '-';
+              
+      //         // 设置原文链接
+      //         if (paper.pdf_url) {
+      //             currentPaperLink = paper.pdf_url;
+      //             viewFullTextBtn.disabled = false;
+      //             viewFullTextBtn.innerHTML = '<i class="bi bi-journal-text me-2"></i>查看原文';
+      //         } else if (paper.doi) {
+      //             currentPaperLink = paper.doi.startsWith('http') ? paper.doi : `https://doi.org/${paper.doi}`;
+      //             viewFullTextBtn.disabled = false;
+      //             viewFullTextBtn.innerHTML = '<i class="bi bi-journal-text me-2"></i>查看原文';
+      //         } else {
+      //             currentPaperLink = '';
+      //             viewFullTextBtn.disabled = true;
+      //             viewFullTextBtn.innerHTML = '<i class="bi bi-journal-text me-2"></i>暂无原文';
+      //         }
+              
+      //         modalLoading.style.display = 'none';
+      //         paperDetailContent.style.display = 'block';
+              
+      //     } catch (error) {
+      //         console.error('获取论文详情失败:', error);
+      //         modalLoading.innerHTML = `
+      //             <div class="text-center text-danger">
+      //                 <i class="bi bi-exclamation-triangle" style="font-size: 3rem;"></i>
+      //                 <p class="mt-2">获取论文详情失败</p>
+      //                 <p class="text-muted">${error.message}</p>
+      //             </div>
+      //         `;
+      //     }
+      // }
+
+
+
+            // 显示论文详情模态框
+      async function showPaperDetails(paperId) {
+          try {
+              modalLoading.style.display = 'block';
+              paperDetailContent.style.display = 'none';
+              paperDetailModal.show();
+              
+              const response = await fetch(`/user/api/paper/${paperId}`);
+              
+              if (!response.ok) {
+                  throw new Error('获取论文详情失败');
+              }
+              
+              const paper = await response.json();
+              
+              // 更新模态框内容
+              paperDetailTitle.textContent = paper.title;
+              
+              // 处理作者信息显示
+              let authorsHtml = '未知作者';
+              if (paper.authors && Array.isArray(paper.authors)) {
+                  authorsHtml = paper.authors.map(author => {
+                      let authorInfo = author.name;
+                      if (author.affiliation) {
+                          authorInfo += ` (${author.affiliation})`;
+                      }
+                      if (author.orcid) {
+                          authorInfo += ` <small class="text-muted">ORCID: ${author.orcid}</small>`;
+                      }
+                      return `<div class="author-item mb-2">${authorInfo}</div>`;
+                  }).join('');
+              }
+              paperDetailAuthors.innerHTML = authorsHtml;
+              
+              paperDetailAbstract.textContent = paper.abstract || '暂无摘要信息';
+              paperCitationCount.textContent = paper.citation_count || 0;
+              paperPublishDate.textContent = paper.publish_date ? new Date(paper.publish_date).toLocaleDateString() : '-';
+              paperCategory.textContent = paper.category ? (paper.category.code) : '-';
+              paperDoi.textContent = paper.doi || '-';
+              
+              // 设置原文链接
+              if (paper.pdf_url) {
+                  currentPaperLink = paper.pdf_url;
+                  viewFullTextBtn.disabled = false;
+                  viewFullTextBtn.innerHTML = '<i class="bi bi-journal-text me-2"></i>查看原文';
+              } else if (paper.doi) {
+                  currentPaperLink = paper.doi.startsWith('http') ? paper.doi : `https://doi.org/${paper.doi}`;
+                  viewFullTextBtn.disabled = false;
+                  viewFullTextBtn.innerHTML = '<i class="bi bi-journal-text me-2"></i>查看原文';
+              } else {
+                  currentPaperLink = '';
+                  viewFullTextBtn.disabled = true;
+                  viewFullTextBtn.innerHTML = '<i class="bi bi-journal-text me-2"></i>暂无原文';
+              }
+              
+              // 隐藏加载状态，显示内容
+              modalLoading.style.display = 'none';
+              paperDetailContent.style.display = 'block';
+              
+              // ✅ 成功弹出论文详情后，记录点击行为
+              await recordPaperClick(paperId);
+              
+          } catch (error) {
+              console.error('获取论文详情失败:', error);
+              modalLoading.innerHTML = `
+                  <div class="text-center text-danger">
+                      <i class="bi bi-exclamation-triangle" style="font-size: 3rem;"></i>
+                      <p class="mt-2">获取论文详情失败</p>
+                      <p class="text-muted">${error.message}</p>
+                  </div>
+              `;
+          }
+      }
+
+            // ✅ 新增：记录论文点击行为
+      async function recordPaperClick(paperId) {
+          try {
+              // 从localStorage获取用户信息
+              const userInfoStr = localStorage.getItem('userInfo');
+              
+              if (!userInfoStr) {
+                  console.warn('用户未登录，跳过点击记录');
+                  return;
+              }
+              
+              let userInfo;
+              try {
+                  userInfo = JSON.parse(userInfoStr);
+              } catch (parseError) {
+                  console.error('解析用户信息失败:', parseError);
+                  return;
+              }
+              
+              // 验证必要字段是否存在
+              if (!userInfo.user_id || !userInfo.college_id) {
+                  console.warn('用户信息不完整，缺少user_id或college_id', userInfo);
+                  return;
+              }
+              
+              const clickData = {
+                  paper_id: paperId,
+                  user_id: userInfo.user_id,        // 从localStorage获取
+                  college_id: userInfo.college_id,  // 从localStorage获取
+                  click_time: new Date().toISOString()
+              };
+              
+              console.log('发送点击记录数据:', clickData);
+              
+              const response = await fetch('/user/api/record-paper-click', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(clickData)
+              });
+              
+              if (response.ok) {
+                  const result = await response.json();
+                  console.log('论文点击记录成功:', paperId, '记录ID:', result.click_id);
+              } else {
+                  console.warn('论文点击记录失败:', paperId, '状态码:', response.status);
+                  try {
+                      const errorData = await response.json();
+                      console.warn('错误详情:', errorData);
+                  } catch (e) {
+                      console.warn('响应文本:', await response.text());
+                  }
+              }
+          } catch (error) {
+              console.error('记录点击行为时出错:', error);
+              // 静默失败，不影响用户体验
+          }
+      }
+
+      // // 显示论文详情模态框
+      // async function showPaperDetails(paperId) {
+      //   try {
+      //     // 显示模态框和加载状态
+      //     modalLoading.style.display = 'block';
+      //     paperDetailContent.style.display = 'none';
+      //     paperDetailModal.show();
+          
+      //     // 获取论文详情
+      //     const response = await fetch(`/api/paper/${paperId}`);
+          
+      //     if (!response.ok) {
+      //       throw new Error('获取论文详情失败');
+      //     }
+          
+      //     const paper = await response.json();
+          
+      //     // 更新模态框内容
+      //     paperDetailTitle.textContent = paper.title;
+      //     paperDetailAuthors.textContent = paper.authors || '未知作者';
+      //     paperDetailAbstract.textContent = paper.abstract || '暂无摘要信息';
+      //     paperCitationCount.textContent = paper.citation_count || 0;
+      //     paperPublishDate.textContent = paper.publish_date ? new Date(paper.publish_date).toLocaleDateString() : '-';
+      //     paperCategory.textContent = paper.category_code || '-';
+      //     paperDoi.textContent = paper.doi || '-';
+          
+      //     // 设置原文链接
+      //     if (paper.link) {
+      //       currentPaperLink = paper.link;
+      //       viewFullTextBtn.disabled = false;
+      //       viewFullTextBtn.innerHTML = '<i class="bi bi-journal-text me-2"></i>查看原文';
+      //     } else if (paper.doi) {
+      //       currentPaperLink = paper.doi.startsWith('http') ? paper.doi : `https://doi.org/${paper.doi}`;
+      //       viewFullTextBtn.disabled = false;
+      //       viewFullTextBtn.innerHTML = '<i class="bi bi-journal-text me-2"></i>查看原文';
+      //     } else {
+      //       currentPaperLink = '';
+      //       viewFullTextBtn.disabled = true;
+      //       viewFullTextBtn.innerHTML = '<i class="bi bi-journal-text me-2"></i>暂无原文';
+      //     }
+          
+      //     // 隐藏加载状态，显示内容
+      //     modalLoading.style.display = 'none';
+      //     paperDetailContent.style.display = 'block';
+          
+      //   } catch (error) {
+      //     console.error('获取论文详情失败:', error);
+      //     modalLoading.innerHTML = `
+      //       <div class="text-center text-danger">
+      //         <i class="bi bi-exclamation-triangle" style="font-size: 3rem;"></i>
+      //         <p class="mt-2">获取论文详情失败</p>
+      //         <p class="text-muted">${error.message}</p>
+      //       </div>
+      //     `;
+      //   }
+      // }
+
+      // 查看原文按钮事件
+      viewFullTextBtn.addEventListener('click', function() {
+        if (currentPaperLink) {
+          window.open(currentPaperLink, '_blank');
+        }
+      });
+
+      // 模态框关闭时重置状态
+      document.getElementById('paperDetailModal').addEventListener('hidden.bs.modal', function() {
+        modalLoading.style.display = 'block';
+        paperDetailContent.style.display = 'none';
+        modalLoading.innerHTML = `
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">加载中...</span>
+          </div>
+          <p class="mt-2">正在加载论文详情...</p>
+        `;
+        viewFullTextBtn.disabled = false;
+        viewFullTextBtn.innerHTML = '<i class="bi bi-journal-text me-2"></i>查看原文';
+      });
+    });
+  </script>
+</body>
+</html>
+
+

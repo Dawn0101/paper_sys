@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>个人设置</title>
+  <!-- FullCalendar CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+    }
+    
+    .container {
+      display: flex;
+      min-height: 100vh;
+      padding: 20px;
+      gap: 20px;
+    }
+    
+    /* 左侧个人信息 */
+    .profile-section {
+      flex: 1;
+      background: white;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      min-width: 300px;
+      max-width: 350px;
+    }
+    
+    .profile-section h2 {
+      color: #409EFF;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #409EFF;
+    }
+    
+    .info-item {
+      margin: 20px 0;
+    }
+    
+    .info-label {
+      color: #666;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .info-value {
+      color: #333;
+      font-size: 16px;
+      padding: 8px 0;
+    }
+    
+    /* 右侧主内容 */
+    .main-section {
+      flex: 3;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    /* 日历容器 */
+    .calendar-container {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* 日程表格 */
+    .schedule-container {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* 表格样式 */
+    .schedule-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      flex: 1;
+    }
+    
+    .schedule-table th {
+      background: #f8f9fa;
+      padding: 12px 15px;
+      text-align: left;
+      font-weight: bold;
+      color: #495057;
+      border-bottom: 2px solid #e9ecef;
+    }
+    
+    .schedule-table td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e9ecef;
+    }
+    
+    .schedule-table tr:hover {
+      background: #f8f9fa;
+    }
+    
+    /* 紧急程度标签 */
+    .priority-badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
+    .priority-high {
+      background: #fdecea;
+      color: #f56c6c;
+    }
+    
+    .priority-medium {
+      background: #fcf4e8;
+      color: #e6a23c;
+    }
+    
+    .priority-low {
+      background: #f0f9eb;
+      color: #67c23a;
+    }
+    
+    /* 状态标签 */
+    .status-badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
+    .status-pending {
+      background: #ecf5ff;
+      color: #409EFF;
+    }
+    
+    .status-completed {
+      background: #f0f9eb;
+      color: #67c23a;
+    }
+    
+    /* 按钮组 */
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .action-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+    
+    .complete-btn {
+      background: #67c23a;
+      color: white;
+    }
+    
+    .complete-btn:hover {
+      background: #5daf34;
+    }
+    
+    .edit-btn {
+      background: #409EFF;
+      color: white;
+    }
+    
+    .edit-btn:hover {
+      background: #337ecc;
+    }
+    
+    .delete-btn {
+      background: #f56c6c;
+      color: white;
+    }
+    
+    .delete-btn:hover {
+      background: #dd6161;
+    }
+    
+    /* 添加日程按钮 */
+    .add-schedule-btn {
+      background: #409EFF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-bottom: 20px;
+      align-self: flex-start;
+    }
+    
+    .add-schedule-btn:hover {
+      background: #337ecc;
+    }
+    
+    /* 模态框样式 */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+    
+    .modal-content {
+      background: white;
+      width: 500px;
+      margin: 50px auto;
+      border-radius: 8px;
+      padding: 30px;
+      position: relative;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #999;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #333;
+    }
+    
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    .time-inputs {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 30px;
+    }
+    
+    .cancel-btn {
+      background: #f0f0f0;
+      color: #666;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .submit-btn {
+      background: #409EFF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .no-schedules {
+      text-align: center;
+      color: #999;
+      padding: 50px 0;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* 响应式设计 */
+    @media (max-width: 1024px) {
+      .container {
+        flex-direction: column;
+      }
+      
+      .profile-section {
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- 左侧：个人信息 -->
+  <div class="profile-section">
+    <h2>个人信息</h2>
+    <div class="info-item">
+      <div class="info-label">用户ID：</div>
+      <div class="info-value" id="user-id">加载中...</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">用户名：</div>
+      <div class="info-value" id="username">加载中...</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">真实姓名：</div>
+      <div class="info-value" id="real-name">加载中...</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">角色：</div>
+      <div class="info-value" id="role">加载中...</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">学院ID：</div>
+      <div class="info-value" id="college-id">加载中...</div>
+    </div>
+  </div>
+
+  <!-- 右侧：主内容 -->
+  <div class="main-section">
+    <!-- 日历区域 -->
+    <div class="calendar-container">
+      <div id="calendar"></div>
+    </div>
+
+    <!-- 日程表格区域 -->
+    <div class="schedule-container">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>我的日程</h2>
+        <button class="add-schedule-btn" id="addScheduleBtn">+ 添加新日程</button>
+      </div>
+      
+      <table class="schedule-table" id="scheduleTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>事件日期</th>
+            <th>时间</th>
+            <th>标题</th>
+            <th>描述</th>
+            <th>紧急程度</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="scheduleTbody">
+          <!-- 日程数据将通过JS动态添加 -->
+        </tbody>
+      </table>
+      <div class="no-schedules" id="noSchedules">暂无日程安排</div>
+    </div>
+  </div>
+</div>
+
+<!-- 添加/编辑日程模态框 -->
+<div class="modal" id="scheduleModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalTitle">添加新日程</h3>
+      <button class="close-btn" id="closeModalBtn">&times;</button>
+    </div>
+    <form id="scheduleForm">
+      <input type="hidden" id="scheduleId" value="">
+      
+      <div class="form-group">
+        <label for="title">标题 *</label>
+        <input type="text" id="title" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="eventDate">日期 *</label>
+        <input type="date" id="eventDate" required>
+      </div>
+      
+      <div class="form-group">
+        <label>时间</label>
+        <div class="time-inputs">
+          <input type="time" id="startTime">
+          <span>至</span>
+          <input type="time" id="endTime">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="description">描述</label>
+        <textarea id="description"></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label for="priority">紧急程度</label>
+        <select id="priority">
+          <option value="1">紧急</option>
+          <option value="2">中等</option>
+          <option value="3">一般</option>
+        </select>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="cancel-btn" id="cancelBtn">取消</button>
+        <button type="submit" class="submit-btn">保存</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- FullCalendar JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/zh-cn.js"></script>
+
+<script>
+  // 全局变量
+  let currentUser = {};
+  let currentSchedules = [];
+  let isEditing = false;
+  let currentEditingId = null;
+  
+  // DOM加载完成后初始化
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. 加载用户信息
+    loadUserInfo();
+    
+    // 2. 初始化日历
+    initCalendar();
+    
+    // 3. 加载日程数据
+    loadSchedules();
+    
+    // 4. 绑定事件
+    bindEvents();
+  });
+  
+  // 加载用户信息
+  function loadUserInfo() {
+    try {
+      const userInfoStr = localStorage.getItem('userInfo');
+      if (userInfoStr) {
+        currentUser = JSON.parse(userInfoStr);
+        
+        // 填充用户信息到页面
+        document.getElementById('user-id').textContent = currentUser.user_id || '暂无';
+        document.getElementById('username').textContent = currentUser.username || '暂无';
+        document.getElementById('real-name').textContent = currentUser.real_name || '暂无';
+        document.getElementById('role').textContent = currentUser.role || '暂无';
+        document.getElementById('college-id').textContent = currentUser.college_id || '暂无';
+      } else {
+        console.warn('未找到用户信息，请先登录');
+      }
+    } catch (error) {
+      console.error('加载用户信息失败:', error);
+    }
+  }
+  
+  // 初始化日历
+  function initCalendar() {
+    const calendarEl = document.getElementById('calendar');
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      locale: 'zh-cn',
+      initialView: 'dayGridMonth',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      },
+      events: function(fetchInfo, successCallback, failureCallback) {
+        // 从API获取日程数据
+        fetchSchedulesForCalendar(fetchInfo.start, fetchInfo.end)
+          .then(events => successCallback(events))
+          .catch(error => {
+            console.error('获取日历事件失败:', error);
+            failureCallback(error);
+          });
+      },
+      eventClick: function(info) {
+        // 点击事件跳转到编辑
+        editSchedule(info.event.id);
+      },
+      dateClick: function(info) {
+        // 点击日期添加日程
+        openAddModal(info.dateStr);
+      }
+    });
+    
+    calendar.render();
+    window.calendar = calendar;
+  }
+  
+  // 获取日历事件数据
+  async function fetchSchedulesForCalendar(start, end) {
+    // 这里应该调用后端API
+    // 简化处理，使用本地数据
+    return currentSchedules.map(schedule => ({
+      id: schedule.id,
+      title: schedule.title,
+      start: `${schedule.eventDate} ${schedule.startTime || ''}`,
+      end: schedule.endTime ? `${schedule.eventDate} ${schedule.endTime}` : undefined,
+      backgroundColor: getEventColor(schedule.priority),
+      borderColor: getEventColor(schedule.priority)
+    }));
+  }
+  
+  // 获取事件颜色
+  function getEventColor(priority) {
+    switch(parseInt(priority)) {
+      case 1: return '#f56c6c'; // 紧急-红色
+      case 2: return '#e6a23c'; // 中等-黄色
+      case 3: return '#67c23a'; // 一般-绿色
+      default: return '#409EFF'; // 默认-蓝色
+    }
+  }
+  
+  // 获取优先级标签
+  function getPriorityLabel(priority) {
+    switch(parseInt(priority)) {
+      case 1: return '<span class="priority-badge priority-high">紧急</span>';
+      case 2: return '<span class="priority-badge priority-medium">中等</span>';
+      case 3: return '<span class="priority-badge priority-low">一般</span>';
+      default: return '<span class="priority-badge priority-low">一般</span>';
+    }
+  }
+  
+  // 获取状态标签
+  function getStatusLabel(status) {
+    if (parseInt(status) === 1) {
+      return '<span class="status-badge status-completed">已完成</span>';
+    } else {
+      return '<span class="status-badge status-pending">进行中</span>';
+    }
+  }
+  
+  // 加载日程数据
+  async function loadSchedules() {
+    try {
+      // 这里应该调用后端API
+      // 模拟API调用
+      const response = await mockFetch('/user/settings/calendar/allItems');
+      currentSchedules = response.data || [];
+      
+      renderScheduleTable();
+    } catch (error) {
+      console.error('加载日程失败:', error);
+      document.getElementById('noSchedules').style.display = 'block';
+    }
+  }
+  
+  // 渲染日程表格
+  function renderScheduleTable() {
+    const tbody = document.getElementById('scheduleTbody');
+    const noSchedules = document.getElementById('noSchedules');
+    
+    if (currentSchedules.length === 0) {
+      tbody.innerHTML = '';
+      noSchedules.style.display = 'flex';
+      return;
+    }
+    
+    noSchedules.style.display = 'none';
+    
+    let html = '';
+    currentSchedules.forEach((schedule, index) => {
+      const timeStr = schedule.startTime ? 
+        `${schedule.startTime}${schedule.endTime ? ' - ' + schedule.endTime : ''}` : 
+        '全天';
+      
+      html += `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${schedule.eventDate}</td>
+          <td>${timeStr}</td>
+          <td>${schedule.title}</td>
+          <td>${schedule.description || '-'}</td>
+          <td>${getPriorityLabel(schedule.priority)}</td>
+          <td>${getStatusLabel(schedule.status)}</td>
+          <td>
+            <div class="action-buttons">
+              ${schedule.status == 0 ? 
+                `<button class="action-btn complete-btn" onclick="completeSchedule(${schedule.id})">完成</button>` :
+                `<button class="action-btn delete-btn" onclick="deleteSchedule(${schedule.id})">删除</button>`
+              }
+              <button class="action-btn edit-btn" onclick="editSchedule(${schedule.id})">修改</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+    
+    tbody.innerHTML = html;
+  }
+  
+  // 完成日程
+  async function completeSchedule(id) {
+    if (!confirm('确认完成此日程吗？')) return;
+    
+    try {
+      const schedule = currentSchedules.find(s => s.id == id);
+      if (schedule) {
+        schedule.status = 1;
+        
+        // 这里应该调用后端API
+        await mockFetch('/user/settings/calendar/update', {
+          method: 'POST',
+          body: JSON.stringify(schedule)
+        });
+        
+        renderScheduleTable();
+        if (window.calendar) {
+          window.calendar.refetchEvents();
+        }
+      }
+    } catch (error) {
+      console.error('完成日程失败:', error);
+      alert('操作失败，请重试');
+    }
+  }
+  
+  // 删除日程
+  async function deleteSchedule(id) {
+    if (!confirm('确认删除此日程吗？')) return;
+    
+    try {
+      // 这里应该调用后端API
+      await mockFetch(`/user/settings/calendar/delete/${id}`, {
+        method: 'DELETE'
+      });
+      
+      currentSchedules = currentSchedules.filter(s => s.id != id);
+      renderScheduleTable();
+      if (window.calendar) {
+        window.calendar.refetchEvents();
+      }
+    } catch (error) {
+      console.error('删除日程失败:', error);
+      alert('删除失败，请重试');
+    }
+  }
+  
+  // 编辑日程
+  function editSchedule(id) {
+    const schedule = currentSchedules.find(s => s.id == id);
+    if (!schedule) return;
+    
+    isEditing = true;
+    currentEditingId = id;
+    
+    // 填充表单
+    document.getElementById('modalTitle').textContent = '编辑日程';
+    document.getElementById('scheduleId').value = schedule.id;
+    document.getElementById('title').value = schedule.title;
+    document.getElementById('eventDate').value = schedule.eventDate;
+    document.getElementById('startTime').value = schedule.startTime || '';
+    document.getElementById('endTime').value = schedule.endTime || '';
+    document.getElementById('description').value = schedule.description || '';
+    document.getElementById('priority').value = schedule.priority || 3;
+    
+    // 显示模态框
+    openModal();
+  }
+  
+  // 打开添加模态框
+  function openAddModal(dateStr) {
+    isEditing = false;
+    currentEditingId = null;
+    
+    document.getElementById('modalTitle').textContent = '添加新日程';
+    document.getElementById('scheduleForm').reset();
+    document.getElementById('scheduleId').value = '';
+    
+    if (dateStr) {
+      document.getElementById('eventDate').value = dateStr.split('T')[0];
+    } else {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('eventDate').value = today;
+    }
+    
+    openModal();
+  }
+  
+  // 打开模态框
+  function openModal() {
+    document.getElementById('scheduleModal').style.display = 'block';
+  }
+  
+  // 关闭模态框
+  function closeModal() {
+    document.getElementById('scheduleModal').style.display = 'none';
+    isEditing = false;
+    currentEditingId = null;
+  }
+  
+  // 绑定事件
+  function bindEvents() {
+    // 添加日程按钮
+    document.getElementById('addScheduleBtn').addEventListener('click', () => {
+      openAddModal();
+    });
+    
+    // 关闭模态框按钮
+    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+    document.getElementById('cancelBtn').addEventListener('click', closeModal);
+    
+    // 点击模态框外部关闭
+    document.getElementById('scheduleModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('scheduleModal')) {
+        closeModal();
+      }
+    });
+    
+    // 表单提交
+    document.getElementById('scheduleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const scheduleData = {
+        title: document.getElementById('title').value.trim(),
+        eventDate: document.getElementById('eventDate').value,
+        startTime: document.getElementById('startTime').value || null,
+        endTime: document.getElementById('endTime').value || null,
+        description: document.getElementById('description').value.trim(),
+        priority: parseInt(document.getElementById('priority').value) || 3,
+        status: 0
+      };
+      
+      if (!scheduleData.title) {
+        alert('请输入标题');
+        return;
+      }
+      
+      try {
+        if (isEditing) {
+          scheduleData.id = currentEditingId;
+          // 调用更新API
+          await mockFetch('/user/settings/calendar/update', {
+            method: 'POST',
+            body: JSON.stringify(scheduleData)
+          });
+          
+          // 更新本地数据
+          const index = currentSchedules.findIndex(s => s.id == currentEditingId);
+          if (index !== -1) {
+            currentSchedules[index] = { ...currentSchedules[index], ...scheduleData };
+          }
+          
+          alert('更新成功');
+        } else {
+          // 调用创建API
+          const response = await mockFetch('/user/settings/calendar/create', {
+            method: 'POST',
+            body: JSON.stringify(scheduleData)
+          });
+          
+          // 添加到本地数据
+          scheduleData.id = Date.now(); // 模拟ID
+          currentSchedules.push(scheduleData);
+          
+          alert('添加成功');
+        }
+        
+        closeModal();
+        renderScheduleTable();
+        if (window.calendar) {
+          window.calendar.refetchEvents();
+        }
+      } catch (error) {
+        console.error('保存日程失败:', error);
+        alert('保存失败，请重试');
+      }
+    });
+  }
+  
+  // 模拟API调用
+  async function mockFetch(url, options = {}) {
+    console.log('API调用:', url, options);
+    
+    // 模拟网络延迟
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // 这里应该替换为真实的API调用
+    // 例如: return fetch('http://localhost:8080' + url, options);
+    
+    return {
+      code: 200, 
+      message: '成功',
+      data: []
+    };
+  }
+</script>
+</body>
+</html>

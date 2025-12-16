@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<title>主页面</title>
+<!-- 防止页面缩放 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!-- 引入 D3.js 库 -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<!-- 引入 particles.js 库 -->
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+<!-- 引入样式表 --> 
+<link rel="stylesheet" href="/static/index.css">    
+</head>
+<body>
+    <!-- 粒子背景容器 -->
+    <div id="particles-js"></div>
+
+    <!-- 顶部导航栏 -->
+    <div class="top-bar">
+      <!-- 左侧团队信息 -->
+      <div class="team-info">
+        <!-- 图标 -->
+        <img src="/static/icon.svg" alt="团队图标">
+        <!-- 团队名称 -->
+        <div class="team-name">NN Explorer</div>
+      </div>
+      <!-- 中间搜索框 -->
+      <div class="search-box" onclick="window.location.href='/user/search'">
+        <input type="text" placeholder="搜索...">
+      </div>
+      <!-- 右侧选项卡 -->
+      <div class="nav-tabs">
+        <a href="/user/login" class="tab">登录</a>
+      </div>
+    </div>
+    
+    <!-- 主容器 -->
+    <div id="container"></div>
+
+    <!-- 页脚 -->
+    <div class="footer">
+      &copy; 2023 NN Explorer. All rights reserved.
+    </div>
+ 
+    
+    
+<script src="/static/index.js"></script>
+
+<script>
+  window.addEventListener('pageshow', function(event) {
+    if (event.persisted) {
+      window.location.reload();
+    }
+  });
+</script>
+</body>
+</html>

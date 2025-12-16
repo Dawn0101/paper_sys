@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校园管理系统 - 登录与注册</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Arial, 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            min-height: 700px;
+            margin: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            background: white;
+        }
+        
+        .welcome-section {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,208C1248,224,1344,192,1392,176L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+            background-size: cover;
+            background-position: bottom;
+        }
+        
+        .welcome-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .welcome-section h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .welcome-section p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .features {
+            margin-top: 30px;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .form-section {
+            flex: 1;
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .form-container {
+            max-width: 400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo h2 {
+            font-size: 2rem;
+            color: #333;
+            font-weight: 700;
+        }
+        
+        .logo p {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .form-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            color: #409eff;
+        }
+        
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #409eff;
+            border-radius: 3px 3px 0 0;
+        }
+        
+        .form-content {
+            transition: all 0.3s;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .role-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .role-option {
+            display: flex;
+            align-items: center;
+        }
+        
+        .role-option label {
+            margin-left: 5px;
+            font-size: 14px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background: #409eff;
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            background: #337ecc;
+        }
+        
+        .btn-secondary {
+            background: #f5f7fa;
+            color: #606266;
+        }
+        
+        .btn-secondary:hover {
+            background: #e4e7ed;
+        }
+        
+        .form-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .demo-info {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f0f9ff;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #606266;
+        }
+        
+        .demo-info h4 {
+            margin-bottom: 10px;
+            color: #409eff;
+        }
+        
+        .demo-info ul {
+            padding-left: 20px;
+        }
+        
+        .demo-info li {
+            margin-bottom: 5px;
+        }
+        
+        .error-message {
+            color: #f56c6c;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .success-message {
+            color: #67c23a;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .hint-text {
+            font-size: 12px;
+            color: #909399;
+            margin-top: 5px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 992px) {
+            .container {
+                flex-direction: column;
+                max-width: 600px;
+            }
+            
+            .welcome-section {
+                padding: 30px 25px;
+            }
+            
+            .form-section {
+                padding: 30px 25px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .container {
+                margin: 10px;
+                min-height: auto;
+            }
+            
+            .welcome-section h1 {
+                font-size: 2rem;
+            }
+            
+            .welcome-section p {
+                font-size: 1rem;
+            }
+            
+            .form-tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                text-align: center;
+            }
+            
+            .role-options {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <!-- 欢迎部分 -->
+            <div class="welcome-section">
+                <div class="welcome-content">
+                    <h1>欢迎使用校园管理系统</h1>
+                    <p>一体化校园管理平台，为学生、学院管理员和学校管理员提供便捷的服务。</p>
+                    
+                    <div class="features">
+                        <div class="feature">
+                            <div class="feature-icon">👨‍🎓</div>
+                            <div>
+                                <h3>学生功能</h3>
+                                <p>课程管理、成绩查询、选课系统</p>
+                            </div>
+                        </div>
+                        <div class="feature">
+                            <div class="feature-icon">👨‍🏫</div>
+                            <div>
+                                <h3>学院管理</h3>
+                                <p>课程安排、学生管理、成绩录入</p>
+                            </div>
+                        </div>
+                        <div class="feature">
+                            <div class="feature-icon">🏫</div>
+                            <div>
+                                <h3>学校管理</h3>
+                                <p>系统管理、数据统计、权限分配</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 表单部分 -->
+            <div class="form-section">
+                <div class="form-container">
+                    <div class="logo">
+                        <h2>校园管理系统</h2>
+                        <p>请登录或注册账户</p>
+                    </div>
+                    
+                    <div class="form-tabs">
+                        <div class="tab" :class="{active: !showRegister}" @click="showRegister = false">登录</div>
+                        <div class="tab" :class="{active: showRegister}" @click="showRegister = true">注册</div>
+                    </div>
+                    
+                    <!-- 登录表单 -->
+                    <el-form 
+                        v-if="!showRegister" 
+                        :model="loginForm" 
+                        :rules="loginRules" 
+                        ref="loginFormRef" 
+                        class="form-content"
+                        label-width="80px"
+                    >
+                        <el-form-item label="用户名" prop="username">
+                            <el-input 
+                                v-model="loginForm.username" 
+                                placeholder="请输入用户名"
+                                size="large"
+                            ></el-input>
+                        </el-form-item>
+                        
+                        <el-form-item label="密码" prop="password">
+                            <el-input 
+                                type="password" 
+                                v-model="loginForm.password" 
+                                placeholder="请输入密码"
+                                size="large"
+                                show-password
+                            ></el-input>
+                        </el-form-item>
+                        
+                        <el-form-item>
+                            <el-button 
+                                type="primary" 
+                                @click="handleLogin" 
+                                size="large"
+                                style="width: 100%;"
+                            >登录</el-button>
+                        </el-form-item>
+                        
+                        <div class="form-footer">
+                            <el-button 
+                                @click="handleReset" 
+                                size="small"
+                            >重置</el-button>
+                            <div id="loginMessage" class="success-message">{{ loginMessage }}</div>
+                        </div>
+                    </el-form>
+                    
+                    <!-- 注册表单 -->
+                    <el-form 
+                        v-else
+                        :model="registerForm" 
+                        :rules="registerRules" 
+                        ref="registerFormRef" 
+                        class="form-content"
+                        label-width="80px"
+                    >
+                        <el-form-item label="用户名" prop="username">
+                            <el-input 
+                                v-model="registerForm.username" 
+                                placeholder="请输入用户名"
+                                size="large"
+                            ></el-input>
+                            <div class="hint-text">用户名只能包含字母、数字和下划线</div>
+                        </el-form-item>
+                        
+                        <el-form-item label="真实姓名" prop="real_name">
+                            <el-input 
+                                v-model="registerForm.real_name" 
+                                placeholder="请输入真实姓名"
+                                size="large"
+                            ></el-input>
+                        </el-form-item>
+                        
+                        <el-form-item label="密码" prop="password">
+                            <el-input 
+                                type="password" 
+                                v-model="registerForm.password" 
+                                placeholder="请输入密码"
+                                size="large"
+                                show-password
+                            ></el-input>
+                        </el-form-item>
+                        
+                        <el-form-item label="确认密码" prop="confirmPassword">
+                            <el-input 
+                                type="password" 
+                                v-model="registerForm.confirmPassword" 
+                                placeholder="请再次输入密码"
+                                size="large"
+                                show-password
+                            ></el-input>
+                        </el-form-item>
+                        
+                        <el-form-item label="用户角色" prop="role">
+                            <div class="role-options">
+                                <div class="role-option">
+                                    <el-radio v-model="registerForm.role" label="student">学生</el-radio>
+                                </div>
+                                <div class="role-option">
+                                    <el-radio v-model="registerForm.role" label="college_admin">学院管理员</el-radio>
+                                </div>
+                                <div class="role-option">
+                                    <el-radio v-model="registerForm.role" label="university_admin">学校管理员</el-radio>
+                                </div>
+                            </div>
+                        </el-form-item>
+                        
+                        <el-form-item label="选择学院" prop="college_id">
+                            <el-select v-model="registerForm.college_id" placeholder="请选择学院" size="large" style="width: 100%;">
+                                <el-option
+                                    v-for="college in colleges"
+                                    :key="college.college_id"
+                                    :label="college.college_name"
+                                    :value="college.college_id"
+                                >
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                        
+                        <el-form-item>
+                            <el-button 
+                                type="primary" 
+                                @click="handleRegister" 
+                                size="large"
+                                style="width: 100%;"
+                            >注册</el-button>
+                        </el-form-item>
+                        
+                        <div class="form-footer">
+                            <el-button 
+                                @click="handleResetRegister" 
+                                size="small"
+                            >重置</el-button>
+                            <div id="registerMessage" class="success-message">{{ registerMessage }}</div>
+                        </div>
+                    </el-form>
+                    
+                    <!-- 演示信息 -->
+                    <div class="demo-info">
+                        <h4>演示账户信息</h4>
+                        <ul>
+                            <li>学生账户: student / 123456</li>
+                            <li>学院管理员: college / 123456</li>
+                            <li>学校管理员: university / 123456</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted } = Vue;
+        const { ElMessage, ElLoading } = ElementPlus;
+        
+        createApp({
+            setup() {
+                // 登录/注册切换
+                const showRegister = ref(false);
+                
+                // 学院数据
+                const colleges = ref([]);
+                
+                // 登录表单
+                const loginFormRef = ref(null);
+                const loginForm = ref({
+                    username: '',
+                    password: ''
+                });
+                
+                const loginMessage = ref('');
+                
+                // 登录表单验证规则
+                const loginRules = {
+                    username: [
+                        { required: true, message: '请输入用户名', trigger: 'blur' }
+                    ],
+                    password: [
+                        { required: true, message: '请输入密码', trigger: 'blur' },
+                        { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+                    ]
+                };
+                
+                // 注册表单
+                const registerFormRef = ref(null);
+                const registerForm = ref({
+                    username: '',
+                    real_name: '',
+                    password: '',
+                    confirmPassword: '',
+                    role: 'student',
+                    college_id: ''
+                });
+                
+                const registerMessage = ref('');
+                
+                // 注册表单验证规则
+                const registerRules = {
+                    username: [
+                        { required: true, message: '请输入用户名', trigger: 'blur' },
+                        { pattern: /^[a-zA-Z0-9_]+$/, message: '用户名只能包含字母、数字和下划线', trigger: 'blur' }
+                    ],
+                    real_name: [
+                        { required: true, message: '请输入真实姓名', trigger: 'blur' }
+                    ],
+                    password: [
+                        { required: true, message: '请输入密码', trigger: 'blur' },
+                        { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+                    ],
+                    confirmPassword: [
+                        { required: true, message: '请再次输入密码', trigger: 'blur' },
+                        {
+                            validator: (rule, value, callback) => {
+                                if (value !== registerForm.value.password) {
+                                    callback(new Error('两次输入的密码不一致'));
+                                } else {
+                                    callback();
+                                }
+                            },
+                            trigger: 'blur'
+                        }
+                    ],
+                    role: [
+                        { required: true, message: '请选择用户角色', trigger: 'change' }
+                    ],
+                    college_id: [
+                        { required: true, message: '请选择学院', trigger: 'change' }
+                    ]
+                };
+                
+                // 获取学院数据
+                const fetchColleges = async () => {
+                    try {
+                        // 调用实际的API获取学院数据
+                        const response = await fetch('/user/api/colleges');
+        
+                        // 检查响应状态
+                        if (!response.ok) {
+                            throw new Error(`HTTP错误! 状态: ${response.status}`);
+                        }
+        
+                        const data = await response.json();
+        
+                        // 假设API返回的数据格式是数组
+                        colleges.value = data;
+                    } catch (error) {
+                        console.error('获取学院数据失败:', error);
+                        ElMessage.error('获取学院数据失败，请刷新页面重试');
+        
+                        // 可选：在API失败时使用备用数据
+                        const fallbackColleges = [
+                            { college_id: 1, college_name: "计算机科学与技术学院", code: "CS" },
+                            { college_id: 2, college_name: "电子工程学院", code: "EE" },
+                            { college_id: 3, college_name: "数学学院", code: "MATH" }
+                        ];
+                        colleges.value = fallbackColleges;
+                    }
+                };
+                
+                // 登录处理
+                const handleLogin = () => {
+                    loginFormRef.value.validate(async (valid) => {
+                        if (!valid) {
+                            loginMessage.value = '表单验证失败，请检查输入！';
+                            return;
+                        }
+                
+                        const loading = ElLoading.service({
+                            lock: true,
+                            text: '登录中...',
+                            background: 'rgba(0, 0, 0, 0.7)',
+                        });
+                
+                        try {
+                            const response = await fetch('/user/api/login', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    username: loginForm.value.username,
+                                    password: loginForm.value.password
+                                })
+                            });
+                    
+                            const data = await response.json();
+                    
+                            if (response.ok && data.code === 200) {
+                                ElMessage.success(data.message || '登录成功！');
+                                
+                                //存储用户信息
+                                localStorage.setItem('userInfo', JSON.stringify(data.data));
+                        
+                                if (data.redirect) {
+                                    loginMessage.value = `登录成功！即将跳转到${data.redirect}`;
+                            
+                                    setTimeout(() => {
+                                        window.location.href = data.redirect;
+                                    }, 1000);
+                                } else {
+                                    loginMessage.value = '登录成功！即将跳转到首页';
+                                    setTimeout(() => {
+                                        window.location.href = '/home';
+                                    }, 1000);
+                                }
+                            } else {
+                                const errorMsg = data.message || data.error || '登录失败，请稍后重试';
+                                ElMessage.error(errorMsg);
+                                loginMessage.value = errorMsg;
+                            }
+                        } catch (error) {
+                            console.error('登录请求失败:', error);
+                            ElMessage.error('网络错误，请检查连接后重试');
+                            loginMessage.value = '网络错误，请检查连接后重试';
+                        } finally {
+                            loading.close();
+                        }
+                    });
+                };
+                
+                // 注册处理
+                const handleRegister = () => {
+                    registerFormRef.value.validate(async (valid) => {
+                        if (!valid) {
+                            registerMessage.value = '表单验证失败，请检查输入！';
+                            return;
+                        }
+                
+                        const loading = ElLoading.service({
+                            lock: true,
+                            text: '注册中...',
+                            background: 'rgba(0, 0, 0, 0.7)',
+                        });
+                
+                        try {
+                            const response = await fetch('/user/api/register', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    username: registerForm.value.username,
+                                    real_name: registerForm.value.real_name,
+                                    password: registerForm.value.password,
+                                    role: registerForm.value.role,
+                                    college_id: registerForm.value.college_id
+                                })
+                            });
+                    
+                            const data = await response.json();
+                    
+                            if (response.ok && data.code === 201) {
+                                ElMessage.success(data.message || '注册成功！');
+                        
+                                // 自动填充登录表单
+                                loginForm.value.username = registerForm.value.username;
+                                loginForm.value.password = '';
+                        
+                                // 切换到登录表单
+                               showRegister.value = false;
+                        
+                                // 重置注册表单
+                                registerFormRef.value.resetFields();
+                            } else {
+                                const errorMsg = data.message || data.error || '注册失败，请稍后重试';
+                                ElMessage.error(errorMsg);
+                                registerMessage.value = errorMsg;
+                            }
+                        } catch (error) {
+                            console.error('注册请求失败:', error);
+                            ElMessage.error('网络错误，请检查连接后重试');
+                            registerMessage.value = '网络错误，请检查连接后重试';
+                        } finally {
+                            loading.close();
+                        }
+                    });
+                };
+                
+                // 重置登录表单
+                const handleReset = () => {
+                    loginFormRef.value.resetFields();
+                    loginMessage.value = '';
+                };
+                
+                // 重置注册表单
+                const handleResetRegister = () => {
+                    registerFormRef.value.resetFields();
+                    registerMessage.value = '';
+                };
+                
+                // 组件挂载时获取学院数据
+                onMounted(() => {
+                    fetchColleges();
+                });
+                
+                return {
+                    showRegister,
+                    colleges,
+                    loginFormRef,
+                    loginForm,
+                    loginRules,
+                    loginMessage,
+                    registerFormRef,
+                    registerForm,
+                    registerRules,
+                    registerMessage,
+                    handleLogin,
+                    handleRegister,
+                    handleReset,
+                    handleResetRegister
+                };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+</html>

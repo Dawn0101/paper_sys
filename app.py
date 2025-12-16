@@ -1,3 +1,4 @@
+# app.py
 from flask import Flask, send_from_directory
 from flask_login import LoginManager  # 新增：导入Flask-Login核心类
 from user.views import blueprint
