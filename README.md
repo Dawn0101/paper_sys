@@ -5,7 +5,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.12-blue)]()
 [![Flask](https://img.shields.io/badge/Flask-3.x-green)]()
-[![Database](https://img.shields.io/badge/Database-SQLite-lightgrey)]()
+[![Database](https://img.shields.io/badge/Database-MySQL-orange)]()
 
 本系统实现了多角色（学生、学院管理员、校级管理员）的论文管理基础功能，采用轻量级前后端分离架构：后端基于 Flask 提供 RESTful API，前端使用原生 HTML/CSS/JavaScript 构建，无任何构建工具依赖。
 
