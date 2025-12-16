@@ -1,11 +1,12 @@
-# user/views.py
 import re
 from flask import Blueprint, render_template, request, jsonify, current_app
-from flask_login import login_required, login_user
-from .models import User, Role
-from .repositories import get_college_by_id, username_exists, create_user , get_user_by_username, get_all_colleges
+from flask_login import login_required, login_user  # 导入login_user
+from user.models import User, Role
+from user.repositories import get_college_by_id, username_exists, create_user , get_user_by_username, get_all_colleges
 
 blueprint = Blueprint("user", __name__, url_prefix="/user")
+
+
 # ===== 1.学院列表 API =====
 @blueprint.route("/api/colleges", methods=["GET"])
 def colleges_api():
@@ -22,6 +23,7 @@ def colleges_api():
             "code": 500,
             "message": "获取学院列表失败"
         }), 500
+
 
 # ===== 2.登录 API =====
 @blueprint.route("/api/login", methods=["POST"])
@@ -44,16 +46,17 @@ def login_api():
 
     user = get_user_by_username(username)
     if user and user.check_password(password):
-        # 下面可以删去
-        role_map = {
-            "STUDENT": "/student/home",
-            "COLLEGE_ADMIN": "/college_admin/home",
-            "UNIVERSITY_ADMIN": "/university_admin/home"
-        }
-        # redirect_path = role_map.get(user.role.value, "/home")
+        # ========== 核心修复1：执行login_user保存登录状态 ==========
+        login_user(user, remember=True)  # remember=True 可选，记住登录
 
-        # 统一跳转到 HomeView 由前端处理具体页面
-        redirect_path = "/user/HomeView" 
+        # ========== 核心修复2：role_map键改为小写（匹配数据库/枚举） ==========
+        role_map = {
+            "student": "/student/home",  # 小写，匹配枚举值
+            "college_admin": "/college_admin/home",
+            "university_admin": "/university_admin/home"
+        }
+        # 动态获取跳转路径（删除手动写死的 /user/HomeView）
+        redirect_path = role_map.get(user.role.value, "/home")
 
         return jsonify({
             "code": 200,
@@ -65,13 +68,14 @@ def login_api():
                 "role": user.role.value,
                 "college_id": user.college_id
             },
-            "redirect": redirect_path
+            "redirect": redirect_path  # 返回动态路径，而非固定 /user/HomeView
         }), 200
     else:
         return jsonify({
             "code": 401,
             "message": "用户名或密码错误"
         }), 401
+
 
 # ===== 3.注册 API=====
 @blueprint.route('/api/register', methods=['POST'])
@@ -83,7 +87,8 @@ def register_api():
     username = data.get('username', '').strip()
     password = data.get('password', '').strip()
     real_name = data.get('real_name', '').strip()
-    role_str = data.get('role', 'student').strip().upper()  # 转为大写
+    # ========== 修复：注册时转小写（匹配数据库/枚举） ==========
+    role_str = data.get('role', 'student').strip().lower()
     college_id = data.get('college_id')
 
     # 验证字段
@@ -93,6 +98,7 @@ def register_api():
     if not re.match(r'^[a-zA-Z0-9_]{3,20}$', username):
         return jsonify({"error": "用户名只能包含字母、数字、下划线，长度 3-20"}), 400
 
+    # 验证角色是否在枚举的小写值中
     if role_str not in [r.value for r in Role]:
         return jsonify({"error": f"角色无效，必须是: {[r.value for r in Role]}"}), 400
 
