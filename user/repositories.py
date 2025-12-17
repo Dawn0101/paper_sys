@@ -108,3 +108,42 @@ def create_user(username: str, password: str, real_name: str, role: str, college
     except Exception as e:
         db.session.rollback()
         raise e
+
+def get_user_by_id(user_id):
+    return User.query.get(user_id)
+
+def update_username(user_id, new_username):
+    """更新用户名，返回 (success: bool, message: str)"""
+    user = User.query.get(user_id)
+    if not user:
+        return False, "用户不存在"
+
+    # 检查新用户名是否已被他人使用
+    existing = User.query.filter(User.username == new_username, User.user_id != user_id).first()
+    if existing:
+        return False, "用户名已存在"
+
+    try:
+        user.username = new_username
+        db.session.commit()
+        return True, "用户名修改成功"
+    except Exception as e:
+        db.session.rollback()
+        return False, "数据库更新失败"
+
+def update_password(user_id, old_password, new_password):
+    """更新密码，返回 (success: bool, message: str)"""
+    user = User.query.get(user_id)
+    if not user:
+        return False, "用户不存在"
+
+    if not user.check_password(old_password):
+        return False, "当前密码错误"
+
+    try:
+        user.set_password(new_password)
+        db.session.commit()
+        return True, "密码修改成功"
+    except Exception as e:
+        db.session.rollback()
+        return False, "数据库更新失败"

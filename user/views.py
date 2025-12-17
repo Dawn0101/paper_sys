@@ -3,7 +3,7 @@ import re
 from datetime import datetime  
 from flask import Blueprint, render_template, request, jsonify, current_app
 from .models import User, Role
-from .repositories import get_college_by_id, username_exists, create_user , get_user_by_username, get_all_colleges, UserTaskRepository
+from .repositories import get_college_by_id, username_exists, create_user , get_user_by_username, get_all_colleges, UserTaskRepository, get_user_by_id, update_username as change_username, update_password as change_password
 
 blueprint = Blueprint("user", __name__, url_prefix="/user")
 # ===== 1.学院列表 API =====
@@ -261,3 +261,89 @@ def get_priority_color(priority):
         'low': '#67c23a'
     }
     return color_map.get(priority, '#409EFF')
+
+# ===== 修改用户名 API =====
+@blueprint.route("/api/update-username", methods=["PUT"])
+def update_username_api():
+    data = request.get_json()
+    if not data:
+        return jsonify({
+            "code": 400,
+            "message": "请求体必须是 JSON"
+        }), 400
+
+    user_id = data.get("user_id")
+    new_username = data.get("new_username", "").strip()
+
+    if not user_id or not isinstance(user_id, int):
+        return jsonify({
+            "code": 400,
+            "message": "缺少有效的 user_id"
+        }), 400
+
+    if not new_username:
+        return jsonify({
+            "code": 400,
+            "message": "新用户名不能为空"
+        }), 400
+
+    success, msg = change_username(user_id, new_username)
+
+    if success:
+        # 返回更新后的用户信息（可选）
+        user = get_user_by_id(user_id)
+        return jsonify({
+            "code": 200,
+            "message": msg,
+            "data": {
+                "user_id": user.user_id,
+                "username": user.username,
+                "real_name": user.real_name,
+                "role": user.role.value,
+                "college_id": user.college_id
+            }
+        }), 200
+    else:
+        return jsonify({
+            "code": 400,
+            "message": msg
+        }), 400
+
+# ===== 修改密码 API =====
+@blueprint.route("/api/change-password", methods=["PUT"])
+def change_password_api():
+    data = request.get_json()
+    if not data:
+        return jsonify({
+            "code": 400,
+            "message": "请求体必须是 JSON"
+        }), 400
+
+    user_id = data.get("user_id")
+    old_password = data.get("old_password", "")
+    new_password = data.get("new_password", "")
+
+    if not user_id or not isinstance(user_id, int):
+        return jsonify({
+            "code": 400,
+            "message": "缺少有效的 user_id"
+        }), 400
+
+    if not old_password or not new_password:
+        return jsonify({
+            "code": 400,
+            "message": "当前密码和新密码均不能为空"
+        }), 400
+
+    success, msg = change_password(user_id, old_password, new_password)
+
+    if success:
+        return jsonify({
+            "code": 200,
+            "message": msg
+        }), 200
+    else:
+        return jsonify({
+            "code": 400,
+            "message": msg
+        }), 400

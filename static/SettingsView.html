@@ -321,6 +321,38 @@
       justify-content: center;
     }
     
+    .profile-actions {
+      margin-top: 24px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .profile-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .edit-btn {
+      background-color: #409EFF;
+      color: white;
+    }
+    .edit-btn:hover {
+      background-color: #337ecc;
+    }
+
+    .reset-btn {
+      background-color: #f56c6c;
+      color: white;
+    }
+    .reset-btn:hover {
+      background-color: #dd6161;
+    }
+
     /* 响应式设计 */
     @media (max-width: 1024px) {
       .container {
@@ -358,6 +390,10 @@
     <div class="info-item">
       <div class="info-label">学院名称：</div>
       <div class="info-value" id="college-name">加载中...</div>
+    </div>
+    <div class="profile-actions" style="margin-top: 24px; display: flex; gap: 12px;">
+      <button id="editUsernameBtn" class="profile-btn edit-btn">✏️ 修改用户名</button>
+      <button id="resetPasswordBtn" class="profile-btn reset-btn">🔒 忘记密码</button>
     </div>
   </div>
 
@@ -428,6 +464,57 @@
       <div class="modal-footer">
         <button type="button" class="cancel-btn" id="cancelBtn">取消</button>
         <button type="submit" class="submit-btn">保存</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- 修改用户名 Modal -->
+<div class="modal" id="editUsernameModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>修改用户名</h3>
+      <button class="close-btn">&times;</button>
+    </div>
+    <form id="editUsernameForm">
+      <div class="form-group">
+        <label for="newUsername">新用户名 *</label>
+        <input type="text" id="newUsername" required minlength="3" maxlength="30" placeholder="请输入新用户名">
+        <small id="usernameError" style="color:#f56c6c; display:none; margin-top:4px;"></small>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="cancel-btn">取消</button>
+        <button type="submit" class="submit-btn">保存</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 忘记密码 Modal -->
+<div class="modal" id="resetPasswordModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>重置密码</h3>
+      <button class="close-btn">&times;</button>
+    </div>
+    <form id="resetPasswordForm">
+      <div class="form-group">
+        <label for="oldPassword">当前密码 *</label>
+        <input type="password" id="oldPassword" required placeholder="请输入当前密码">
+      </div>
+      <div class="form-group">
+        <label for="newPassword">新密码 *</label>
+        <input type="password" id="newPassword" required minlength="6" placeholder="至少6位">
+      </div>
+      <div class="form-group">
+        <label for="confirmPassword">确认新密码 *</label>
+        <input type="password" id="confirmPassword" required placeholder="请再次输入新密码">
+        <small id="passwordError" style="color:#f56c6c; display:none; margin-top:4px;"></small>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="cancel-btn">取消</button>
+        <button type="submit" class="submit-btn">确认重置</button>
       </div>
     </form>
   </div>
@@ -693,6 +780,142 @@
     
     tbody.innerHTML = html;
   }
+
+
+  // 打开修改用户名弹窗
+  document.getElementById('editUsernameBtn').addEventListener('click', () => {
+    document.getElementById('newUsername').value = currentUser.username || '';
+    document.getElementById('usernameError').style.display = 'none';
+    openModal('editUsernameModal');
+  });
+
+  // 打开重置密码弹窗
+  document.getElementById('resetPasswordBtn').addEventListener('click', () => {
+    document.getElementById('resetPasswordForm').reset();
+    document.getElementById('passwordError').style.display = 'none';
+    openModal('resetPasswordModal');
+  });
+
+  // 打开模态框
+  function openModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) {
+      modal.style.display = 'block';
+    } else {
+      console.warn(`[openModal] 找不到 ID 为 "${id}" 的模态框`);
+    }
+  }
+
+  // 关闭模态框
+  document.querySelectorAll('.close-btn, .cancel-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      this.closest('.modal').style.display = 'none';
+    });
+  });
+
+  // 提交修改用户名
+  document.getElementById('editUsernameForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const newUsername = document.getElementById('newUsername').value.trim();
+    const errorEl = document.getElementById('usernameError');
+
+    if (newUsername === currentUser.username) {
+      errorEl.textContent = '新用户名不能与当前相同';
+      errorEl.style.display = 'block';
+      return;
+    }
+    
+    // 获取当前用户信息中的 user_id
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const userId = userInfo && userInfo.user_id ? userInfo.user_id : null;
+
+    if (!userId) {
+      errorEl.textContent = '无法获取用户ID，请重新登录';
+      errorEl.style.display = 'block';
+      return;
+    }
+    
+    try {
+      const res = await fetch('/user/api/update-username', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ new_username: newUsername, user_id: userId })
+      });
+
+      const result = await res.json();
+      if (result.code === 200) {
+        alert('用户名修改成功！');
+        currentUser.username = newUsername;
+        localStorage.setItem('userInfo', JSON.stringify(currentUser));
+        document.getElementById('username').textContent = newUsername;
+        document.getElementById('editUsernameModal').style.display = 'none';
+      } else {
+        errorEl.textContent = result.message || '修改失败';
+        errorEl.style.display = 'block';
+      }
+    } catch (err) {
+      console.error(err);
+      errorEl.textContent = '网络错误，请重试';
+      errorEl.style.display = 'block';
+    }
+  });
+
+  // 提交修改密码
+  document.getElementById('resetPasswordForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const oldPass = document.getElementById('oldPassword').value;
+    const newPass = document.getElementById('newPassword').value;
+    const confirmPass = document.getElementById('confirmPassword').value;
+    const errorEl = document.getElementById('passwordError');
+
+    if (newPass !== confirmPass) {
+      errorEl.textContent = '两次输入的新密码不一致';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    if (newPass.length < 6) {
+      errorEl.textContent = '新密码至少6位';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    // 获取当前用户信息中的 user_id
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const userId = userInfo && userInfo.user_id ? userInfo.user_id : null;
+
+    if (!userId) {
+      errorEl.textContent = '无法获取用户ID，请重新登录';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    try {
+      const res = await fetch('/user/api/change-password', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: userId, // 添加用户ID到请求体中
+          old_password: oldPass,
+          new_password: newPass
+        })
+      });
+
+      const result = await res.json();
+      if (result.code === 200) {
+        alert('密码修改成功！请重新登录');
+        localStorage.removeItem('userInfo');
+        window.location.href = '/user/login';
+      } else {
+        errorEl.textContent = result.message || '修改失败';
+        errorEl.style.display = 'block';
+      }
+    } catch (err) {
+      console.error(err);
+      errorEl.textContent = '网络错误，请重试';
+      errorEl.style.display = 'block';
+    }
+  });
   
   // 完成任务
   async function completeTask(taskId) {
@@ -786,7 +1009,7 @@
           //document.getElementById('description').value = task.description || '';
           document.getElementById('priority').value = task.priority;
           
-          openModal();
+          openModal('scheduleModal');
         } else {
           alert('未找到该任务');
         }
@@ -816,11 +1039,6 @@
     }
     
     openModal();
-  }
-  
-  // 打开模态框
-  function openModal() {
-    document.getElementById('scheduleModal').style.display = 'block';
   }
   
   // 关闭模态框
@@ -868,8 +1086,8 @@
     });
     
     // 关闭模态框按钮
-    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
-    document.getElementById('cancelBtn').addEventListener('click', closeModal);
+    //document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+    //document.getElementById('cancelBtn').addEventListener('click', closeModal);
     
     // 点击模态框外部关闭
     document.getElementById('scheduleModal').addEventListener('click', (e) => {

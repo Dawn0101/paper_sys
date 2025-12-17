@@ -75,7 +75,7 @@ def get_connection():
     return mysql.connector.connect(
         host='localhost',
         user='root',
-        password='4252210zxc',
+        password='123456',
         database='paper_sys',
         autocommit=False
     )
@@ -96,6 +96,7 @@ def extract_top_keywords(abstract, top_n=5):
     tokens = tokenize(abstract)
     if not tokens:
         return []
+    
     freq = Counter(tokens)
     # 返回频率最高的 top_n 个词（按频率降序，同频按字母升序）
     most_common = freq.most_common(top_n)
