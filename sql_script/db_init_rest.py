@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 DB_CONFIG = {
     'host': 'localhost',
     'user': 'root',
-    'password': '123456',  # 改成你的密码
+    'password': '4252210zxc',  # 改成你的密码
     'database': 'paper_sys'
 }
 
