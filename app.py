@@ -3,6 +3,7 @@ from flask import Flask, send_from_directory
 from user.views import blueprint  # ← 改成 blueprint
 from student.views import blueprint as student_blueprint  # 新增：导入学生蓝图
 from college_admin.views import blueprint as college_admin_blueprint  # 新增：导入学院管理员蓝图
+from university_admin.views import blueprint as university_admin_blueprint  # 新增：导入大学管理员蓝图
 from config import Config
 from user.models import db
 
@@ -16,6 +17,7 @@ def create_app():
     app.register_blueprint(blueprint)  # ← 这里也用 blueprint
     app.register_blueprint(student_blueprint)   #新增学生蓝图注册
     app.register_blueprint(college_admin_blueprint)   #新增学院管理员蓝图注册
+    app.register_blueprint(university_admin_blueprint)   #新增大学管理员蓝图注册
 
     # 1.公共界面路由跳转
     @app.route('/')
@@ -62,9 +64,18 @@ def create_app():
     def college_admin_overview():
         return send_from_directory('static', 'college_admin/overview.html')
 
+    # 4.大学管理员界面路由跳转
     @app.route('/university_admin/home')
-    def admin_home():
-        return send_from_directory('static', 'college_admin/HomeView.html')
+    def university_admin_home():
+        return send_from_directory('static', 'HomeView.html')
+
+    @app.route('/university_admin/console')
+    def university_admin_console():
+        return send_from_directory('static', 'university_admin/console.html')
+
+    @app.route('/university_admin/overview')
+    def university_admin_overview():
+        return send_from_directory('static', 'university_admin/overview.html')
 
     return app
 
