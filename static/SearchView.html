@@ -476,10 +476,10 @@
           
           <div id="paperDetailContent" style="display: none;">
             <!-- 作者信息 -->
-            <div class="paper-detail-section">
+            <!-- <div class="paper-detail-section">
               <h5><i class="bi bi-people me-2"></i>作者信息</h5>
               <div class="paper-authors-list" id="paperDetailAuthors"></div>
-            </div>
+            </div> -->
             
             <!-- 摘要 -->
             <div class="paper-detail-section">
@@ -491,10 +491,10 @@
             <div class="paper-detail-section">
               <h5><i class="bi bi-info-circle me-2"></i>论文信息</h5>
               <div class="paper-meta-info">
-                <div class="meta-item">
+                <!-- <div class="meta-item">
                   <span class="meta-value" id="paperCitationCount">0</span>
                   <span class="meta-label">被引用量</span>
-                </div>
+                </div> -->
                 <div class="meta-item">
                   <span class="meta-value" id="paperPublishDate">-</span>
                   <span class="meta-label">发表年份</span>
@@ -660,110 +660,6 @@
         }
       }
 
-      // // 显示搜索结果
-      // function displayResults(papers, searchParams) {
-      //   resultsContainer.innerHTML = '';
-
-      //   // 显示结果数量
-      //   resultCount.textContent = `找到 ${papers.length} 条相关论文`;
-      //   resultsInfo.classList.remove('d-none');
-
-      //   if (papers.length === 0) {
-      //     resultsContainer.innerHTML = '<div class="col-12 no-results"><i class="bi bi-search" style="font-size: 3rem;"></i><p class="mt-3">没有找到符合条件的论文</p></div>';
-      //     return;
-      //   }
-
-      //   // 构建结果列表
-      //   papers.forEach(paper => {
-      //     const paperCard = document.createElement('div');
-      //     paperCard.className = 'col-lg-6 mb-4';
-
-      //     // 格式化日期 - 优先使用publish_date
-      //     let formattedDate = '未知日期';
-      //     if (paper.publish_date) {
-      //       const date = new Date(paper.publish_date);
-      //       formattedDate = date.toLocaleDateString();
-      //     } else if (paper.created_at) {
-      //       const date = new Date(paper.created_at);
-      //       formattedDate = date.toLocaleDateString() + ' (创建日期)';
-      //     }
-
-      //     // 构建标签内容
-      //     let badges = '';
-      //     if (paper.all_categories) {
-      //       badges += `<span class="detail-badge"><i class="bi bi-tags"></i> 分类: ${paper.all_categories}</span>`;
-      //     }
-      //     if (paper.doi) {
-      //       badges += `<span class="detail-badge"><i class="bi bi-link-45deg"></i> DOI: ${paper.doi}</span>`;
-      //     }
-      //     if (paper.arxiv_base_id) {
-      //       badges += `<span class="detail-badge"><i class="bi bi-file-earmark-text"></i> arXiv:${paper.arxiv_base_id}</span>`;
-      //     }
-
-      //     // 作者信息
-      //     const authors = paper.authors || '未知作者';
-
-      //     paperCard.innerHTML = `
-      //       <div class="card paper-card h-100">
-      //         <div class="card-body">
-      //           <h5 class="paper-title" data-paper-id="${paper.paper_id}">${paper.title}</h5>
-      //           <div class="paper-authors">
-      //             <i class="bi bi-people"></i> ${authors}
-      //           </div>
-      //           <div class="paper-badges my-2">
-      //             ${badges}
-      //           </div>
-      //           <div class="d-flex justify-content-between align-items-center mt-3">
-      //             <small class="text-muted"><i class="bi bi-calendar3"></i> ${formattedDate}</small>
-      //             <button class="btn btn-sm btn-outline-primary view-details"
-      //                     data-paper-id="${paper.paper_id}"
-      //                     data-doi="${paper.doi || ''}"
-      //                     data-link="${paper.link || ''}"
-      //                     data-has-external="${paper.link || paper.doi ? 'true' : 'false'}">
-      //               ${paper.link || paper.doi ? '查看原文' : '查看详情'}
-      //             </button>
-      //           </div>
-      //         </div>
-      //       </div>
-      //     `;
-
-      //     resultsContainer.appendChild(paperCard);
-      //   });
-
-      //   // 为论文标题添加点击事件
-      //   document.querySelectorAll('.paper-title').forEach(title => {
-      //     title.addEventListener('click', function() {
-      //       const paperId = this.getAttribute('data-paper-id');
-      //       showPaperDetails(paperId);
-      //     });
-      //   });
-
-      //   // 为查看详情/原文按钮添加事件
-      //   document.querySelectorAll('.view-details').forEach(button => {
-      //     button.addEventListener('click', function(e) {
-      //       e.stopPropagation(); // 阻止事件冒泡
-      //       const paperId = this.getAttribute('data-paper-id');
-      //       const doi = this.getAttribute('data-doi');
-      //       const link = this.getAttribute('data-link');
-      //       const hasExternalLink = this.getAttribute('data-has-external') === 'true';
-
-      //       if (hasExternalLink) {
-      //         // 优先使用论文的直接链接
-      //         if (link) {
-      //           window.open(link, '_blank');
-      //         }
-      //         // 如果没有直接链接但有DOI，使用DOI链接
-      //         else if (doi) {
-      //           const doiUrl = doi.startsWith('http') ? doi : `https://doi.org/${doi}`;
-      //           window.open(doiUrl, '_blank');
-      //         }
-      //       } else {
-      //         // 没有外部链接，显示详情模态框
-      //         showPaperDetails(paperId);
-      //       }
-      //     });
-      //   });
-      // }
             // 显示搜索结果
       function displayResults(papers, searchParams) {
           resultsContainer.innerHTML = '';
@@ -784,9 +680,30 @@
 
               // 格式化日期
               let formattedDate = '未知日期';
-              if (paper.publish_date) {
-                  const date = new Date(paper.publish_date);
-                  formattedDate = date.toLocaleDateString();
+              // if (paper.publish_date) {
+              //     const date = new Date(paper.publish_date);
+              //     formattedDate = date.toLocaleDateString();
+              // }
+
+              //  尝试从arxiv_id中提取年份和月份
+              if (paper.arxiv_id) {
+                  // arXiv ID通常格式: YYMM.number 或 YYMM.numbervN
+                  // 例如: 2401.12345 表示2024年1月
+                  const arxivMatch = paper.arxiv_id.match(/^(\d{2})(\d{2})/);
+                  if (arxivMatch) {
+                      const year = parseInt(arxivMatch[1], 10);
+                      const month = parseInt(arxivMatch[2], 10);
+                      
+                      // arXiv格式: 年份后两位，需要转换为完整年份
+                      // 假设2000年以后的论文
+                      const fullYear = year >= 0 && year <= 99 ? 2000 + year : year;
+                      
+                      // 验证月份有效性
+                      if (month >= 1 && month <= 12) {
+                          // 只显示年月格式
+                          formattedDate = `${fullYear}年${month}月`;
+                      }
+                  }
               }
 
               // 构建标签内容
@@ -801,14 +718,10 @@
                   badges += `<span class="detail-badge"><i class="bi bi-file-earmark-text"></i> arXiv:${paper.arxiv_id}</span>`;
               }
 
-              // 处理作者信息 - 修正部分
-              let authorsDisplay = '未知作者';
-              if (paper.authors && Array.isArray(paper.authors)) {
-                  // 提取作者姓名
-                  authorsDisplay = paper.authors.map(author => author.name).join(', ');
-              } else if (typeof paper.authors === 'string') {
-                  authorsDisplay = paper.authors;
-              }
+
+
+              //需要显示作者信息时注释掉
+              authorsDisplay="";
 
               paperCard.innerHTML = `
                   <div class="card paper-card h-100">
@@ -871,78 +784,6 @@
           });
       }
 
-      //       // 显示论文详情模态框
-      // async function showPaperDetails(paperId) {
-      //     try {
-      //         modalLoading.style.display = 'block';
-      //         paperDetailContent.style.display = 'none';
-      //         paperDetailModal.show();
-              
-      //         const response = await fetch(`/user/api/paper/${paperId}`);
-              
-      //         if (!response.ok) {
-      //             throw new Error('获取论文详情失败');
-      //         }
-              
-      //         const paper = await response.json();
-              
-      //         // 更新模态框内容
-      //         paperDetailTitle.textContent = paper.title;
-              
-      //         // 处理作者信息显示 - 修正部分
-      //         let authorsHtml = '未知作者';
-      //         if (paper.authors && Array.isArray(paper.authors)) {
-      //             authorsHtml = paper.authors.map(author => {
-      //                 let authorInfo = author.name;
-      //                 if (author.affiliation) {
-      //                     authorInfo += ` (${author.affiliation})`;
-      //                 }
-      //                 if (author.orcid) {
-      //                     authorInfo += ` <small class="text-muted">ORCID: ${author.orcid}</small>`;
-      //                 }
-      //                 return `<div class="author-item mb-2">${authorInfo}</div>`;
-      //             }).join('');
-      //         }
-      //         paperDetailAuthors.innerHTML = authorsHtml;
-              
-      //         paperDetailAbstract.textContent = paper.abstract || '暂无摘要信息';
-      //         paperCitationCount.textContent = paper.citation_count || 0;
-      //         paperPublishDate.textContent = paper.publish_date ? new Date(paper.publish_date).toLocaleDateString() : '-';
-      //         paperCategory.textContent = paper.category ? ( paper.category.code) : '-';
-      //         paperDoi.textContent = paper.doi || '-';
-              
-      //         // 设置原文链接
-      //         if (paper.pdf_url) {
-      //             currentPaperLink = paper.pdf_url;
-      //             viewFullTextBtn.disabled = false;
-      //             viewFullTextBtn.innerHTML = '<i class="bi bi-journal-text me-2"></i>查看原文';
-      //         } else if (paper.doi) {
-      //             currentPaperLink = paper.doi.startsWith('http') ? paper.doi : `https://doi.org/${paper.doi}`;
-      //             viewFullTextBtn.disabled = false;
-      //             viewFullTextBtn.innerHTML = '<i class="bi bi-journal-text me-2"></i>查看原文';
-      //         } else {
-      //             currentPaperLink = '';
-      //             viewFullTextBtn.disabled = true;
-      //             viewFullTextBtn.innerHTML = '<i class="bi bi-journal-text me-2"></i>暂无原文';
-      //         }
-              
-      //         modalLoading.style.display = 'none';
-      //         paperDetailContent.style.display = 'block';
-              
-      //     } catch (error) {
-      //         console.error('获取论文详情失败:', error);
-      //         modalLoading.innerHTML = `
-      //             <div class="text-center text-danger">
-      //                 <i class="bi bi-exclamation-triangle" style="font-size: 3rem;"></i>
-      //                 <p class="mt-2">获取论文详情失败</p>
-      //                 <p class="text-muted">${error.message}</p>
-      //             </div>
-      //         `;
-      //     }
-      // }
-
-
-
             // 显示论文详情模态框
       async function showPaperDetails(paperId) {
           try {
@@ -960,26 +801,33 @@
               
               // 更新模态框内容
               paperDetailTitle.textContent = paper.title;
-              
-              // 处理作者信息显示
-              let authorsHtml = '未知作者';
-              if (paper.authors && Array.isArray(paper.authors)) {
-                  authorsHtml = paper.authors.map(author => {
-                      let authorInfo = author.name;
-                      if (author.affiliation) {
-                          authorInfo += ` (${author.affiliation})`;
+
+              //论文发布年份
+              let formattedDate = '未知日期';
+
+              if (paper.arxiv_id) {
+                  // arXiv ID通常格式: YYMM.number 或 YYMM.numbervN
+                  // 例如: 2401.12345 表示2024年1月
+                  const arxivMatch = paper.arxiv_id.match(/^(\d{2})(\d{2})/);
+                  if (arxivMatch) {
+                      const year = parseInt(arxivMatch[1], 10);
+                      const month = parseInt(arxivMatch[2], 10);
+                      
+                      // arXiv格式: 年份后两位，需要转换为完整年份
+                      // 假设2000年以后的论文
+                      const fullYear = year >= 0 && year <= 99 ? 2000 + year : year;
+                      
+                      // 验证月份有效性
+                      if (month >= 1 && month <= 12) {
+                          // 只显示年月格式
+                          formattedDate = `${fullYear}年${month}月`;
                       }
-                      if (author.orcid) {
-                          authorInfo += ` <small class="text-muted">ORCID: ${author.orcid}</small>`;
-                      }
-                      return `<div class="author-item mb-2">${authorInfo}</div>`;
-                  }).join('');
+                  }
               }
-              paperDetailAuthors.innerHTML = authorsHtml;
               
               paperDetailAbstract.textContent = paper.abstract || '暂无摘要信息';
-              paperCitationCount.textContent = paper.citation_count || 0;
-              paperPublishDate.textContent = paper.publish_date ? new Date(paper.publish_date).toLocaleDateString() : '-';
+              // paperCitationCount.textContent = paper.citation_count || 0;
+              paperPublishDate.textContent = formattedDate || '-';
               paperCategory.textContent = paper.category ? (paper.category.code) : '-';
               paperDoi.textContent = paper.doi || '-';
               
@@ -1061,6 +909,7 @@
               
               if (response.ok) {
                   const result = await response.json();
+                  console.log("论文点击后端返回信息", result);
                   console.log('论文点击记录成功:', paperId, '记录ID:', result.click_id);
               } else {
                   console.warn('论文点击记录失败:', paperId, '状态码:', response.status);
@@ -1076,63 +925,6 @@
               // 静默失败，不影响用户体验
           }
       }
-
-      // // 显示论文详情模态框
-      // async function showPaperDetails(paperId) {
-      //   try {
-      //     // 显示模态框和加载状态
-      //     modalLoading.style.display = 'block';
-      //     paperDetailContent.style.display = 'none';
-      //     paperDetailModal.show();
-          
-      //     // 获取论文详情
-      //     const response = await fetch(`/api/paper/${paperId}`);
-          
-      //     if (!response.ok) {
-      //       throw new Error('获取论文详情失败');
-      //     }
-          
-      //     const paper = await response.json();
-          
-      //     // 更新模态框内容
-      //     paperDetailTitle.textContent = paper.title;
-      //     paperDetailAuthors.textContent = paper.authors || '未知作者';
-      //     paperDetailAbstract.textContent = paper.abstract || '暂无摘要信息';
-      //     paperCitationCount.textContent = paper.citation_count || 0;
-      //     paperPublishDate.textContent = paper.publish_date ? new Date(paper.publish_date).toLocaleDateString() : '-';
-      //     paperCategory.textContent = paper.category_code || '-';
-      //     paperDoi.textContent = paper.doi || '-';
-          
-      //     // 设置原文链接
-      //     if (paper.link) {
-      //       currentPaperLink = paper.link;
-      //       viewFullTextBtn.disabled = false;
-      //       viewFullTextBtn.innerHTML = '<i class="bi bi-journal-text me-2"></i>查看原文';
-      //     } else if (paper.doi) {
-      //       currentPaperLink = paper.doi.startsWith('http') ? paper.doi : `https://doi.org/${paper.doi}`;
-      //       viewFullTextBtn.disabled = false;
-      //       viewFullTextBtn.innerHTML = '<i class="bi bi-journal-text me-2"></i>查看原文';
-      //     } else {
-      //       currentPaperLink = '';
-      //       viewFullTextBtn.disabled = true;
-      //       viewFullTextBtn.innerHTML = '<i class="bi bi-journal-text me-2"></i>暂无原文';
-      //     }
-          
-      //     // 隐藏加载状态，显示内容
-      //     modalLoading.style.display = 'none';
-      //     paperDetailContent.style.display = 'block';
-          
-      //   } catch (error) {
-      //     console.error('获取论文详情失败:', error);
-      //     modalLoading.innerHTML = `
-      //       <div class="text-center text-danger">
-      //         <i class="bi bi-exclamation-triangle" style="font-size: 3rem;"></i>
-      //         <p class="mt-2">获取论文详情失败</p>
-      //         <p class="text-muted">${error.message}</p>
-      //       </div>
-      //     `;
-      //   }
-      // }
 
       // 查看原文按钮事件
       viewFullTextBtn.addEventListener('click', function() {

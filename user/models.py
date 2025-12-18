@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
 import enum
 from flask_login import UserMixin
-
+from datetime import datetime
 db = SQLAlchemy()
 
 class Role(str, enum.Enum):
@@ -89,4 +89,80 @@ class UserTask(db.Model):
             'status': self.status,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+    
+
+class Category(db.Model):
+    __tablename__ = 'categories'
+    
+    category_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    code = db.Column(db.String(50), nullable=False, unique=True)
+    name = db.Column(db.String(100), nullable=False)
+    
+    def to_dict(self):
+        return {
+            "category_id": self.category_id,
+            "code": self.code,
+            "name": self.name
+        }
+    
+class PaperClick(db.Model):
+    __tablename__ = 'paper_clicks'
+    
+    click_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    paper_id = db.Column(db.Integer, db.ForeignKey('papers.paper_id'), nullable=False)
+    college_id = db.Column(db.Integer, db.ForeignKey('colleges.college_id'), nullable=False)
+    click_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    
+    # 关联关系
+    user = db.relationship("User", backref="paper_clicks")
+    paper = db.relationship("Paper", backref="paper_clicks")
+    college = db.relationship("College", backref="paper_clicks")
+    
+    def to_dict(self):
+        return {
+            "click_id": self.click_id,
+            "user_id": self.user_id,
+            "paper_id": self.paper_id,
+            "college_id": self.college_id,
+            "click_time": self.click_time.isoformat() + 'Z' if self.click_time else None
+        }
+
+    def __repr__(self):
+        return f"<PaperClick(user_id={self.user_id}, paper_id={self.paper_id}, time={self.click_time})>"
+    
+
+
+
+# ===== 新增：论文相关模型 =====
+class Paper(db.Model):
+    __tablename__ = 'papers'
+    
+    paper_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    title = db.Column(db.String(500), nullable=False)
+    arxiv_id = db.Column(db.String(50), unique=True, nullable=False)
+    doi = db.Column(db.String(100), unique=True)
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.category_id'), nullable=False)
+    # citation_count = db.Column(db.Integer, default=0)
+    # publish_date = db.Column(db.Date)
+    abstract = db.Column(db.Text)
+    pdf_url = db.Column(db.String(500), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # 关联分类
+    category = db.relationship("Category", backref="papers")
+    
+    def to_dict(self):
+
+        
+        return {
+            "paper_id": self.paper_id,
+            "title": self.title,
+            "arxiv_id": self.arxiv_id,
+            "doi": self.doi,
+            "abstract": self.abstract,
+            "pdf_url": self.pdf_url,
+            "category": self.category.to_dict() if self.category else None,
         }
