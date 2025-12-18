@@ -3,272 +3,1309 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>论文管理系统 - 管理员后台</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-  <style>
-    :root {
-      --primary-color: #3498db;
-      --secondary-color: #2c3e50;
-      --success-color: #2ecc71;
-      --warning-color: #f39c12;
-      --light-bg: #f8f9fa;
-    }
+  <title>大学管理员控制台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
-    body {
-      background-color: var(--light-bg);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  <!-- 配置Tailwind自定义主题 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36CFC9',
+            neutral: '#86909C',
+            light: '#F2F3F5',
+            dark: '#1D2129'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
     }
+  </script>
 
-    .admin-header {
-      background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
-      color: white;
-      border-radius: 0 0 15px 15px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .module-card {
-      transition: all 0.3s ease;
-      border: none;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-    }
-
-    .module-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-    }
-
-    .completed {
-      border-left: 5px solid var(--success-color);
-    }
-
-    .pending {
-      border-left: 5px solid var(--warning-color);
-    }
-
-    .card-icon {
-      font-size: 2.5rem;
-      color: var(--primary-color);
-    }
-
-    .status-badge {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-    }
-
-    .progress-section {
-      background-color: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-    }
-
-    .progress-bar {
-      background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .sidebar-item {
+        @apply flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 cursor-pointer;
+      }
+      .sidebar-item.active {
+        @apply bg-primary/10 text-primary font-medium;
+      }
+      .sidebar-item:hover:not(.active) {
+        @apply bg-gray-100;
+      }
+      .btn {
+        @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+      }
+      .btn-primary {
+        @apply bg-primary text-white hover:bg-primary/90;
+      }
+      .btn-danger {
+        @apply bg-red-50 text-red-600 hover:bg-red-100;
+      }
+      .btn-outline {
+        @apply border border-gray-200 hover:bg-gray-50;
+      }
+      .table-row-hover {
+        @apply hover:bg-gray-50 transition-colors duration-150;
+      }
+      .form-input {
+        @apply w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary;
+      }
+      
+      /* 自定义滚动条 */
+      .custom-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: #c1c1c1 #f1f1f1;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+      }
     }
   </style>
 </head>
-<body>
-  <!-- 顶部导航 -->
-  <nav class="navbar navbar-expand-lg navbar-dark admin-header">
-    <div class="container">
-      <a class="navbar-brand" href="#">
-        <i class="bi bi-journal-text me-2"></i>
-        论文管理系统
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="#"><i class="bi bi-person-circle me-1"></i> 管理员</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#" id="logoutBtn"><i class="bi bi-box-arrow-right me-1"></i> 退出</a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-
-  <div class="container my-4">
-    <!-- 欢迎和统计信息 -->
-    <div class="row mb-4">
-      <div class="col-md-8">
-        <h2 class="mb-1">管理员后台</h2>
-        <p class="text-muted"></p>
-      </div>
-      <div class="col-md-4">
-        <div class="progress-section p-3">
-          <div class="d-flex justify-content-between mb-2">
-            <span>开发进度</span>
-            <span>75%</span>
-          </div>
-          <div class="progress">
-            <div class="progress-bar" role="progressbar" style="width: 75%"></div>
-          </div>
-        </div>
-      </div>
+<body class="font-inter bg-gray-50 text-dark h-screen flex overflow-hidden">
+  <!-- 左侧导航栏 -->
+  <aside class="w-64 bg-white border-r border-gray-200 flex-shrink-0 transition-all duration-300 ease-in-out">
+    <div class="p-5 border-b border-gray-200">
+      <h1 class="text-xl font-bold text-primary flex items-center gap-2">
+        <i class="fa fa-graduation-cap"></i>
+        <span>大学管理员控制台</span>
+      </h1>
     </div>
 
-    <!-- 功能模块卡片 -->
-    <div class="row g-4">
-      <!-- 已完成的模块 -->
-      <div class="col-md-6 col-lg-4">
-        <div class="card module-card h-100 completed">
-          <div class="card-body position-relative">
-            <span class="badge bg-success status-badge">已完成</span>
-            <div class="d-flex align-items-center mb-3">
-              <i class="bi bi-file-text card-icon me-3"></i>
-              <h5 class="card-title mb-0">论文管理</h5>
+    <nav class="p-4">
+      <h2 class="text-xs uppercase text-neutral font-semibold mb-3 px-4">核心功能</h2>
+      <ul class="space-y-1">
+        <li>
+          <a href="#" class="sidebar-item active" data-tab="click-history">
+            <i class="fa fa-history w-5 text-center"></i>
+            <span>浏览记录</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidebar-item" data-tab="paper-management">
+            <i class="fa fa-file-text-o w-5 text-center"></i>
+            <span>论文管理</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidebar-item" data-tab="user-management">
+            <i class="fa fa-users w-5 text-center"></i>
+            <span>用户管理</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- 其他功能 -->
+      <h2 class="text-xs uppercase text-neutral font-semibold mb-3 px-4 mt-8">其他功能</h2>
+      <ul class="space-y-1">
+        <li>
+          <a href="#" class="sidebar-item text-neutral cursor-not-allowed">
+            <i class="fa fa-star-o w-5 text-center"></i>
+            <span>收藏论文</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- 主内容区 -->
+  <main class="flex-1 flex flex-col overflow-hidden">
+    <!-- 顶部导航 -->
+    <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+      <h2 class="text-lg font-semibold" id="main-title">论文浏览记录</h2>
+      <div class="flex items-center gap-4">
+        <button class="text-neutral hover:text-primary transition-colors" id="refresh-btn">
+          <i class="fa fa-refresh text-lg"></i>
+        </button>
+        <div class="flex items-center gap-2">
+          <img src="https://picsum.photos/id/1005/40/40" alt="用户头像" class="w-8 h-8 rounded-full object-cover border border-gray-200">
+          <span class="text-sm font-medium" id="current-username">当前用户</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 内容区域 -->
+    <div class="flex-1 overflow-y-auto p-6 bg-gray-50 custom-scrollbar">
+      <!-- 浏览记录面板 -->
+      <div id="click-history-panel" class="tab-panel">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="font-medium">浏览历史记录</h3>
+            <div class="text-sm text-neutral">
+              共 <span id="total-count" class="text-primary font-medium">0</span> 条记录
             </div>
-            <p class="card-text">管理所有论文信息，包括添加、编辑、删除和搜索功能。</p>
-            <a href="paper" class="btn btn-primary">进入管理</a>
+          </div>
+
+          <!-- 表格区域 -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50 border-b border-gray-200">
+                  <th class="text-left px-6 py-4 font-medium text-neutral">序号</th>
+                  <th class="text-left px-6 py-4 font-medium text-neutral">论文标题</th>
+                  <th class="text-left px-6 py-4 font-medium text-neutral">浏览时间</th>
+                  <th class="text-left px-6 py-4 font-medium text-neutral">操作</th>
+                </tr>
+              </thead>
+              <tbody id="history-table-body">
+                <!-- 加载状态 -->
+                <tr>
+                  <td colspan="4" class="px-6 py-12 text-center text-neutral">
+                    <div class="flex flex-col items-center">
+                      <i class="fa fa-spinner fa-spin text-primary text-2xl mb-3"></i>
+                      <span>加载中...</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 空状态 -->
+          <div id="empty-state" class="hidden px-6 py-16 text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+              <i class="fa fa-folder-open-o text-2xl text-neutral"></i>
+            </div>
+            <h3 class="text-lg font-medium mb-1">暂无浏览记录</h3>
+            <p class="text-neutral max-w-md mx-auto">您还没有浏览过任何论文，浏览论文后会在这里显示记录</p>
           </div>
         </div>
       </div>
 
-      <div class="col-md-6 col-lg-4">
-        <div class="card module-card h-100 completed">
-          <div class="card-body position-relative">
-            <span class="badge bg-success status-badge">已完成</span>
-            <div class="d-flex align-items-center mb-3">
-              <i class="bi bi-tags card-icon me-3"></i>
-              <h5 class="card-title mb-0">分类管理</h5>
+      <!-- 论文管理面板 -->
+      <div id="paper-management-panel" class="tab-panel hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div class="p-5 border-b border-gray-200 flex flex-wrap justify-between items-center gap-4">
+            <h3 class="font-medium">论文管理</h3>
+            <div class="flex items-center gap-3">
+              <div class="relative">
+                <input type="text" id="paper-search-input" placeholder="搜索论文标题..." class="form-input px-4 py-2 w-64">
+              </div>
+              <div class="relative">
+                <select id="paper-category-select" class="form-input py-2 w-48">
+                  <option value="">所有分类</option>
+                </select>
+              </div>
+              <button id="paper-search-btn" class="btn btn-outline">
+                <i class="fa fa-search mr-1"></i> 搜索
+              </button>
+              <button id="add-paper-btn" class="btn btn-primary">
+                <i class="fa fa-plus mr-1"></i> 添加论文
+              </button>
             </div>
-            <p class="card-text">管理论文分类体系，创建、编辑和删除分类。</p>
-            <a href="category" class="btn btn-primary">进入管理</a>
+          </div>
+
+          <!-- 表格区域 -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50 border-b border-gray-200">
+                  <th class="text-left px-6 py-4 font-medium text-neutral">序号</th>
+                  <th class="text-left px-6 py-4 font-medium text-neutral">论文标题</th>
+                  <th class="text-left px-6 py-4 font-medium text-neutral">ArXiv ID</th>
+                  <th class="text-left px-6 py-4 font-medium text-neutral">分类</th>
+                  <th class="text-left px-6 py-4 font-medium text-neutral">操作</th>
+                </tr>
+              </thead>
+              <tbody id="paper-table-body">
+                <!-- 加载状态 -->
+                <tr>
+                  <td colspan="5" class="px-6 py-12 text-center text-neutral">
+                    <div class="flex flex-col items-center">
+                      <i class="fa fa-spinner fa-spin text-primary text-2xl mb-3"></i>
+                      <span>加载中...</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 分页 -->
+          <div class="px-6 py-4 border-t border-gray-200 flex justify-between items-center">
+            <div class="text-sm text-neutral">
+              共 <span id="paper-total-count" class="text-primary font-medium">0</span> 篇论文
+            </div>
+            <div class="flex items-center gap-2" id="paper-pagination">
+              <button class="btn btn-outline px-3 py-1 text-sm" id="paper-prev-page" disabled>
+                <i class="fa fa-chevron-left"></i>
+              </button>
+              <span id="paper-page-info" class="text-sm">第 1 页 / 共 0 页</span>
+              <button class="btn btn-outline px-3 py-1 text-sm" id="paper-next-page" disabled>
+                <i class="fa fa-chevron-right"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- 待开发的模块 -->
-      <div class="col-md-6 col-lg-4">
-        <div class="card module-card h-100 pending">
-          <div class="card-body position-relative">
-            <span class="badge bg-success status-badge">已完成</span>
-            <div class="d-flex align-items-center mb-3">
-              <i class="bi bi-people card-icon me-3"></i>
-              <h5 class="card-title mb-0">作者管理</h5>
+      <!-- 用户管理面板 -->
+      <div id="user-management-panel" class="tab-panel hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div class="p-5 border-b border-gray-200 flex flex-wrap justify-between items-center gap-4">
+            <h3 class="font-medium">用户管理</h3>
+            <div class="flex items-center gap-3">
+              <div class="relative">
+                <input type="text" id="user-search-input" placeholder="搜索用户名或姓名..." class="form-input px-4 py-2 w-64">
+              </div>
+              <div class="relative">
+                <select id="user-role-select" class="form-input py-2 w-48">
+                  <option value="">所有角色</option>
+                  <option value="STUDENT">学生</option>
+                  <option value="COLLEGE_ADMIN">学院管理员</option>
+                  <option value="UNIVERSITY_ADMIN">大学管理员</option>
+                </select>
+              </div>
+              <div class="relative">
+                <select id="user-college-select" class="form-input py-2 w-48">
+                  <option value="">所有学院</option>
+                </select>
+              </div>
+              <button id="user-search-btn" class="btn btn-outline">
+                <i class="fa fa-search mr-1"></i> 搜索
+              </button>
             </div>
-            <p class="card-text">管理论文作者信息，包括作者档案和关联关系。</p>
-            <a href="author" class="btn btn-primary">进入管理</a>
+          </div>
+
+          <!-- 表格区域 -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50 border-b border-gray-200">
+                  <th class="text-left px-6 py-4 font-medium text-neutral">序号</th>
+                  <th class="text-left px-6 py-4 font-medium text-neutral">用户名</th>
+                  <th class="text-left px-6 py-4 font-medium text-neutral">真实姓名</th>
+                  <th class="text-left px-6 py-4 font-medium text-neutral">角色</th>
+                  <th class="text-left px-6 py-4 font-medium text-neutral">学院</th>
+                  <th class="text-left px-6 py-4 font-medium text-neutral">操作</th>
+                </tr>
+              </thead>
+              <tbody id="user-table-body">
+                <!-- 加载状态 -->
+                <tr>
+                  <td colspan="6" class="px-6 py-12 text-center text-neutral">
+                    <div class="flex flex-col items-center">
+                      <i class="fa fa-spinner fa-spin text-primary text-2xl mb-3"></i>
+                      <span>加载中...</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 分页 -->
+          <div class="px-6 py-4 border-t border-gray-200 flex justify-between items-center">
+            <div class="text-sm text-neutral">
+              共 <span id="user-total-count" class="text-primary font-medium">0</span> 个用户
+            </div>
+            <div class="flex items-center gap-2" id="user-pagination">
+              <button class="btn btn-outline px-3 py-1 text-sm" id="user-prev-page" disabled>
+                <i class="fa fa-chevron-left"></i>
+              </button>
+              <span id="user-page-info" class="text-sm">第 1 页 / 共 0 页</span>
+              <button class="btn btn-outline px-3 py-1 text-sm" id="user-next-page" disabled>
+                <i class="fa fa-chevron-right"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>
+    </div>
+  </main>
 
-      <div class="col-md-6 col-lg-4">
-        <div class="card module-card h-100 pending">
-          <div class="card-body position-relative">
-            <span class="badge bg-success status-badge">已完成</span>
-            <div class="d-flex align-items-center mb-3">
-              <i class="bi bi-building card-icon me-3"></i>
-              <h5 class="card-title mb-0">机构管理</h5>
-            </div>
-            <p class="card-text">管理研究机构和大学信息，建立机构与论文的关联。</p>
-            <a href="affiliation" class="btn btn-primary">进入管理</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-6 col-lg-4">
-        <div class="card module-card h-100 pending">
-          <div class="card-body position-relative">
-            <span class="badge bg-success status-badge">已完成</span>
-            <div class="d-flex align-items-center mb-3">
-              <i class="bi bi-keyword card-icon me-3"></i>
-              <h5 class="card-title mb-0">关键词管理</h5>
-            </div>
-            <p class="card-text">管理论文关键词，建立关键词索引和关联。</p>
-            <a href="keyword" class="btn btn-primary">进入管理</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-6 col-lg-4">
-        <div class="card module-card h-100 pending">
-          <div class="card-body position-relative">
-            <span class="badge bg-success status-badge">已完成</span>
-            <div class="d-flex align-items-center mb-3">
-              <i class="bi bi-cpu card-icon me-3"></i>
-              <h5 class="card-title mb-0">NLP Source管理</h5>
-            </div>
-            <p class="card-text">管理自然语言处理数据源和相关配置。</p>
-            <a href="NLPsource" class="btn btn-primary">进入管理</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-6 col-lg-4">
-        <div class="card module-card h-100 pending">
-          <div class="card-body position-relative">
-            <span class="badge bg-success status-badge">已完成</span>
-            <div class="d-flex align-items-center mb-3">
-              <i class="bi bi-arrow-left-right card-icon me-3"></i>
-              <h5 class="card-title mb-0">引用管理</h5>
-            </div>
-            <p class="card-text">管理论文之间的引用关系，分析引用网络。</p>
-            <a href="citation" class="btn btn-primary">进入管理</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-6 col-lg-4">
-        <div class="card module-card h-100 pending">
-          <div class="card-body position-relative">
-            <span class="badge bg-success status-badge">已完成</span>
-            <div class="d-flex align-items-center mb-3">
-              <i class="bi bi-graph-up card-icon me-3"></i>
-              <h5 class="card-title mb-0">指标管理</h5>
-            </div>
-            <p class="card-text">管理学术指标，包括影响因子、引用次数等。</p>
-            <a href="metrics" class="btn btn-primary">进入管理</a>
-          </div>
-        </div>
+  <!-- 确认删除模态框 -->
+  <div id="delete-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4 transform transition-all">
+      <h3 class="text-lg font-medium mb-2">确认删除</h3>
+      <p id="delete-modal-message" class="text-neutral mb-6">您确定要删除这条记录吗？此操作不可撤销。</p>
+      <div class="flex justify-end gap-3">
+        <button id="cancel-delete" class="btn btn-outline">取消</button>
+        <button id="confirm-delete" class="btn bg-red-600 text-white hover:bg-red-700">删除</button>
       </div>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- 编辑用户模态框 -->
+  <div id="edit-user-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl p-6 w-full max-w-2xl mx-4 transform transition-all max-h-[90vh] overflow-y-auto">
+      <h3 class="text-lg font-medium mb-4">编辑用户信息</h3>
+      <form id="edit-user-form" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-sm font-medium">用户名 <span class="text-red-500">*</span></label>
+            <input type="text" id="edit-username" name="username" class="form-input" required>
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm font-medium">真实姓名 <span class="text-red-500">*</span></label>
+            <input type="text" id="edit-real-name" name="real_name" class="form-input" required>
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm font-medium">角色 <span class="text-red-500">*</span></label>
+            <select id="edit-role" name="role" class="form-input" required>
+              <option value="STUDENT">学生</option>
+              <option value="COLLEGE_ADMIN">学院管理员</option>
+              <option value="UNIVERSITY_ADMIN">大学管理员</option>
+            </select>
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm font-medium">学院 <span class="text-red-500">*</span></label>
+            <select id="edit-college" name="college_id" class="form-input" required>
+              <option value="">请选择学院</option>
+            </select>
+          </div>
+          <div class="space-y-2 md:col-span-2">
+            <label class="text-sm font-medium">新密码（留空则不修改，至少6位）</label>
+            <input type="password" id="edit-password" name="password" class="form-input" minlength="6">
+          </div>
+        </div>
+        <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+          <button type="button" id="cancel-edit-user" class="btn btn-outline">取消</button>
+          <button type="submit" class="btn btn-primary">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 添加论文模态框 -->
+  <div id="add-paper-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl p-6 w-full max-w-2xl mx-4 transform transition-all max-h-[90vh] overflow-y-auto">
+      <h3 class="text-lg font-medium mb-4">添加新论文</h3>
+      <form id="add-paper-form" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-sm font-medium">论文标题 <span class="text-red-500">*</span></label>
+            <input type="text" id="paper-title" name="title" class="form-input" required>
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm font-medium">ArXiv ID <span class="text-red-500">*</span></label>
+            <input type="text" id="paper-arxiv-id" name="arxiv_id" class="form-input" required>
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm font-medium">分类 <span class="text-red-500">*</span></label>
+            <select id="paper-category" name="category_id" class="form-input" required>
+              <option value="">请选择分类</option>
+            </select>
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm font-medium">DOI</label>
+            <input type="text" id="paper-doi" name="doi" class="form-input">
+          </div>
+          <div class="space-y-2 md:col-span-2">
+            <label class="text-sm font-medium">PDF链接 <span class="text-red-500">*</span></label>
+            <input type="url" id="paper-pdf-url" name="pdf_url" class="form-input" required>
+          </div>
+          <div class="space-y-2 md:col-span-2">
+            <label class="text-sm font-medium">摘要</label>
+            <textarea id="paper-abstract" name="abstract" rows="4" class="form-input"></textarea>
+          </div>
+        </div>
+        <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+          <button type="button" id="cancel-add-paper" class="btn btn-outline">取消</button>
+          <button type="submit" class="btn btn-primary">提交</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
+    // 全局状态
+    let currentUser = {};
+    let currentDeleteId = null;
+    let currentDeleteType = ''; // 'history', 'paper', 'user'
+    let currentEditUserId = null;
+    
+    // 分页状态
+    const userPageState = { page: 1, per_page: 20, total: 0, pages: 0, search: '', role: '', college_id: '' };
+    const paperPageState = { page: 1, per_page: 20, total: 0, pages: 0, category_id: '', search: '' };
+    
+    // DOM元素
+    const tabItems = document.querySelectorAll('.sidebar-item');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+    const mainTitle = document.getElementById('main-title');
+    const refreshBtn = document.getElementById('refresh-btn');
+    const currentUsernameEl = document.getElementById('current-username');
+    
+    // 浏览记录相关
+    const historyTableBody = document.getElementById('history-table-body');
+    const totalCountEl = document.getElementById('total-count');
+    const emptyState = document.getElementById('empty-state');
+    
+    // 用户管理相关
+    const userTableBody = document.getElementById('user-table-body');
+    const userSearchInput = document.getElementById('user-search-input');
+    const userRoleSelect = document.getElementById('user-role-select');
+    const userCollegeSelect = document.getElementById('user-college-select');
+    const userSearchBtn = document.getElementById('user-search-btn');
+    const userTotalCountEl = document.getElementById('user-total-count');
+    const userPageInfo = document.getElementById('user-page-info');
+    const userPrevPageBtn = document.getElementById('user-prev-page');
+    const userNextPageBtn = document.getElementById('user-next-page');
+    
+    // 论文管理相关
+    const paperTableBody = document.getElementById('paper-table-body');
+    const paperSearchInput = document.getElementById('paper-search-input');
+    const paperCategorySelect = document.getElementById('paper-category-select');
+    const paperSearchBtn = document.getElementById('paper-search-btn');
+    const addPaperBtn = document.getElementById('add-paper-btn');
+    const paperTotalCountEl = document.getElementById('paper-total-count');
+    const paperPageInfo = document.getElementById('paper-page-info');
+    const paperPrevPageBtn = document.getElementById('paper-prev-page');
+    const paperNextPageBtn = document.getElementById('paper-next-page');
+    const paperCategoryModalSelect = document.getElementById('paper-category');
+    
+    // 模态框相关
+    const deleteModal = document.getElementById('delete-modal');
+    const deleteModalMessage = document.getElementById('delete-modal-message');
+    const cancelDeleteBtn = document.getElementById('cancel-delete');
+    const confirmDeleteBtn = document.getElementById('confirm-delete');
+    
+    const editUserModal = document.getElementById('edit-user-modal');
+    const editUserForm = document.getElementById('edit-user-form');
+    const cancelEditUserBtn = document.getElementById('cancel-edit-user');
+    
+    const addPaperModal = document.getElementById('add-paper-modal');
+    const addPaperForm = document.getElementById('add-paper-form');
+    const cancelAddPaperBtn = document.getElementById('cancel-add-paper');
 
-
-  // 新增：退出功能代码
-  document.addEventListener('DOMContentLoaded', function() {
-    // 找到退出按钮（通过ID精准定位）
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', async function(e) {
-        e.preventDefault(); // 阻止默认跳转
-        // 显示"退出中"状态
-        logoutBtn.textContent = '退出中...';
-        logoutBtn.disabled = true;
-
-        try {
-          // 发送退出请求到后端
-          const response = await fetch('/logout', {
-            method: 'POST',
-            credentials: 'same-origin' // 携带登录状态
-          });
-          if (response.ok) {
-            // 成功后跳转到登录页
-            window.location.href = '/login';
-          } else {
-            alert('退出失败，请重试');
-          }
-        } catch (error) {
-          alert('网络错误，退出失败');
-        } finally {
-          // 恢复按钮状态（如果没跳转成功）
-          logoutBtn.textContent = '退出';
-          logoutBtn.disabled = false;
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', () => {
+      // 加载用户信息
+      loadUserInfo();
+      
+      // 绑定选项卡切换事件
+      tabItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          const tabId = item.getAttribute('data-tab');
+          switchTab(tabId);
+        });
+      });
+      
+      // 绑定刷新按钮事件
+      refreshBtn.addEventListener('click', refreshCurrentTab);
+      
+      // 绑定模态框事件
+      cancelDeleteBtn.addEventListener('click', () => {
+        deleteModal.classList.add('hidden');
+      });
+      
+      confirmDeleteBtn.addEventListener('click', handleConfirmDelete);
+      
+      cancelEditUserBtn.addEventListener('click', () => {
+        editUserModal.classList.add('hidden');
+      });
+      
+      editUserForm.addEventListener('submit', handleEditUserSubmit);
+      
+      cancelAddPaperBtn.addEventListener('click', () => {
+        addPaperModal.classList.add('hidden');
+      });
+      
+      addPaperForm.addEventListener('submit', handleAddPaperSubmit);
+      
+      // 绑定用户管理事件
+      userSearchBtn.addEventListener('click', () => {
+        userPageState.page = 1;
+        userPageState.search = userSearchInput.value.trim();
+        userPageState.role = userRoleSelect.value;
+        userPageState.college_id = userCollegeSelect.value;
+        fetchUsers();
+      });
+      
+      userPrevPageBtn.addEventListener('click', () => {
+        if (userPageState.page > 1) {
+          userPageState.page--;
+          fetchUsers();
         }
       });
+      
+      userNextPageBtn.addEventListener('click', () => {
+        if (userPageState.page < userPageState.pages) {
+          userPageState.page++;
+          fetchUsers();
+        }
+      });
+      
+      // 绑定论文管理事件
+      paperSearchBtn.addEventListener('click', () => {
+        paperPageState.page = 1;
+        paperPageState.search = paperSearchInput.value.trim();
+        paperPageState.category_id = paperCategorySelect.value;
+        fetchPapers();
+      });
+      
+      paperPrevPageBtn.addEventListener('click', () => {
+        if (paperPageState.page > 1) {
+          paperPageState.page--;
+          fetchPapers();
+        }
+      });
+      
+      paperNextPageBtn.addEventListener('click', () => {
+        if (paperPageState.page < paperPageState.pages) {
+          paperPageState.page++;
+          fetchPapers();
+        }
+      });
+      
+      addPaperBtn.addEventListener('click', () => {
+        addPaperModal.classList.remove('hidden');
+        // 重置表单
+        addPaperForm.reset();
+      });
+    });
+
+    // 切换选项卡
+    function switchTab(tabId) {
+      // 更新导航栏激活状态
+      tabItems.forEach(item => {
+        if (item.getAttribute('data-tab') === tabId) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+      
+      // 更新面板显示状态
+      tabPanels.forEach(panel => {
+        if (panel.id === `${tabId}-panel`) {
+          panel.classList.remove('hidden');
+        } else {
+          panel.classList.add('hidden');
+        }
+      });
+      
+      // 更新标题
+      switch(tabId) {
+        case 'click-history':
+          mainTitle.textContent = '论文浏览记录';
+          fetchClickHistory();
+          break;
+        case 'paper-management':
+          mainTitle.textContent = '论文管理';
+          fetchCategories();
+          fetchPapers();
+          break;
+        case 'user-management':
+          mainTitle.textContent = '用户管理';
+          fetchColleges();
+          fetchUsers();
+          break;
+      }
     }
-  });
-</script>
+
+    // 刷新当前激活的选项卡
+    function refreshCurrentTab() {
+      const activeTab = document.querySelector('.sidebar-item.active');
+      if (activeTab) {
+        const tabId = activeTab.getAttribute('data-tab');
+        switch(tabId) {
+          case 'click-history':
+            fetchClickHistory();
+            break;
+          case 'paper-management':
+            fetchPapers();
+            break;
+          case 'user-management':
+            fetchUsers();
+            break;
+        }
+        showToast('已刷新数据');
+      }
+    }
+
+    // 加载用户信息
+    function loadUserInfo() {
+      try {
+        const userInfoStr = localStorage.getItem('userInfo');
+
+        if (userInfoStr) {
+          currentUser = JSON.parse(userInfoStr);
+          currentUsernameEl.textContent = currentUser.real_name || currentUser.username;
+          
+          // 默认加载浏览记录
+          fetchClickHistory();
+        } else {
+          console.warn('未找到用户信息，请先登录');
+          renderNotLoggedInState('history-table-body');
+          renderNotLoggedInState('user-table-body', 6);
+          renderNotLoggedInState('paper-table-body', 5);
+          currentUsernameEl.textContent = '未登录';
+        }
+      } catch (error) {
+        console.error('加载用户信息失败:', error);
+        renderErrorState('history-table-body', '用户信息加载失败', 4);
+        renderErrorState('user-table-body', '用户信息加载失败', 6);
+        renderErrorState('paper-table-body', '用户信息加载失败', 5);
+      }
+    }
+
+    // 渲染未登录状态
+    function renderNotLoggedInState(tableId, colSpan = 4) {
+      const tableBody = document.getElementById(tableId);
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="${colSpan}" class="px-6 py-16 text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+              <i class="fa fa-user-times text-2xl text-neutral"></i>
+            </div>
+            <h3 class="text-lg font-medium mb-1">未登录</h3>
+            <p class="text-neutral max-w-md mx-auto mb-4">请先登录系统以查看相关数据</p>
+            <a href="/user/login" class="btn bg-primary text-white hover:bg-primary/90">
+              前往登录
+            </a>
+          </td>
+        </tr>
+      `;
+    }
+
+    // 渲染错误状态
+    function renderErrorState(tableId, message, colSpan = 4) {
+      const tableBody = document.getElementById(tableId);
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="${colSpan}" class="px-6 py-16 text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-4">
+              <i class="fa fa-exclamation-triangle text-2xl text-red-600"></i>
+            </div>
+            <h3 class="text-lg font-medium mb-1">加载失败</h3>
+            <p class="text-neutral max-w-md mx-auto mb-4">${message}</p>
+            <button onclick="refreshCurrentTab()" class="btn btn-outline">
+              重试
+            </button>
+          </td>
+        </tr>
+      `;
+    }
+
+    // ==================== 浏览记录功能 ====================
+    async function fetchClickHistory() {
+      try {
+        if (!currentUser || !currentUser.user_id) {
+          showToast('用户信息无效，请重新登录', 'error');
+          renderNotLoggedInState('history-table-body');
+          return;
+        }
+
+        historyTableBody.innerHTML = `
+          <tr>
+            <td colspan="4" class="px-6 py-12 text-center text-neutral">
+              <div class="flex flex-col items-center">
+                <i class="fa fa-spinner fa-spin text-primary text-2xl mb-3"></i>
+                <span>加载中...</span>
+              </div>
+            </td>
+          </tr>
+        `;
+
+        const response = await fetch(`/university_admin/api/click-history?user_id=${currentUser.user_id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.code === 200) {
+          renderHistoryTable(data.data);
+          totalCountEl.textContent = data.data.length;
+
+          if (data.data.length === 0) {
+            emptyState.classList.remove('hidden');
+            historyTableBody.innerHTML = '';
+          } else {
+            emptyState.classList.add('hidden');
+          }
+        } else {
+          showToast('获取记录失败: ' + data.message, 'error');
+          renderErrorState('history-table-body', '数据加载失败: ' + data.message);
+        }
+      } catch (error) {
+        console.error('获取浏览记录失败:', error);
+        showToast('网络错误，无法获取记录', 'error');
+        renderErrorState('history-table-body', '网络连接失败');
+      }
+    }
+
+    function renderHistoryTable(records) {
+      historyTableBody.innerHTML = '';
+
+      if (records.length === 0) {
+        historyTableBody.innerHTML = `
+          <tr>
+            <td colspan="4" class="px-6 py-16 text-center">
+              <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                <i class="fa fa-folder-open-o text-2xl text-neutral"></i>
+              </div>
+              <h3 class="text-lg font-medium mb-1">暂无浏览记录</h3>
+              <p class="text-neutral max-w-md mx-auto">请先浏览一些论文，记录将在这里显示</p>
+            </td>
+          </tr>
+        `;
+        totalCountEl.textContent = '0';
+        return;
+      }
+
+      records.forEach((record, index) => {
+        const row = document.createElement('tr');
+        row.className = 'border-b border-gray-100 table-row-hover';
+        row.innerHTML = `
+          <td class="px-6 py-4">${index + 1}</td>
+          <td class="px-6 py-4 max-w-md">
+            <a href="${record.pdf_url}" target="_blank" class="text-primary hover:underline truncate block">
+              ${record.paper_title || '未知论文'}
+            </a>
+          </td>
+          <td class="px-6 py-4 text-neutral">${record.click_time}</td>
+          <td class="px-6 py-4">
+            <button
+              class="btn btn-danger delete-btn"
+              data-id="${record.click_id}"
+              data-type="history"
+            >
+              <i class="fa fa-trash-o mr-1"></i> 删除
+            </button>
+          </td>
+        `;
+
+        historyTableBody.appendChild(row);
+      });
+
+      bindDeleteButtons();
+    }
+
+    // ==================== 用户管理功能 ====================
+    async function fetchColleges() {
+      try {
+        const response = await fetch('/university_admin/api/colleges', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.code === 200) {
+          const colleges = data.data;
+          userCollegeSelect.innerHTML = '<option value="">所有学院</option>';
+          const editCollegeSelect = document.getElementById('edit-college');
+          editCollegeSelect.innerHTML = '<option value="">请选择学院</option>';
+          
+          colleges.forEach(college => {
+            const option1 = document.createElement('option');
+            option1.value = college.college_id;
+            option1.textContent = college.college_name;
+            userCollegeSelect.appendChild(option1);
+            
+            const option2 = document.createElement('option');
+            option2.value = college.college_id;
+            option2.textContent = college.college_name;
+            editCollegeSelect.appendChild(option2);
+          });
+        }
+      } catch (error) {
+        console.error('获取学院列表失败:', error);
+      }
+    }
+
+    async function fetchUsers() {
+      try {
+        userTableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="px-6 py-12 text-center text-neutral">
+              <div class="flex flex-col items-center">
+                <i class="fa fa-spinner fa-spin text-primary text-2xl mb-3"></i>
+                <span>加载中...</span>
+              </div>
+            </td>
+          </tr>
+        `;
+
+        const params = new URLSearchParams({
+          page: userPageState.page,
+          per_page: userPageState.per_page,
+          search: userPageState.search,
+        });
+        
+        if (userPageState.role) {
+          params.append('role', userPageState.role);
+        }
+        if (userPageState.college_id) {
+          params.append('college_id', userPageState.college_id);
+        }
+
+        const response = await fetch(`/university_admin/api/users?${params.toString()}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.code === 200) {
+          renderUserTable(data.data.users);
+          userPageState.total = data.data.total;
+          userPageState.pages = data.data.pages;
+          
+          userTotalCountEl.textContent = data.data.total;
+          userPageInfo.textContent = `第 ${userPageState.page} 页 / 共 ${userPageState.pages} 页`;
+          
+          userPrevPageBtn.disabled = userPageState.page <= 1;
+          userNextPageBtn.disabled = userPageState.page >= userPageState.pages;
+        } else {
+          showToast('获取用户列表失败: ' + data.message, 'error');
+          renderErrorState('user-table-body', '数据加载失败: ' + data.message, 6);
+        }
+      } catch (error) {
+        console.error('获取用户列表失败:', error);
+        showToast('网络错误，无法获取用户列表', 'error');
+        renderErrorState('user-table-body', '网络连接失败', 6);
+      }
+    }
+
+    function renderUserTable(users) {
+      userTableBody.innerHTML = '';
+
+      if (users.length === 0) {
+        userTableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="px-6 py-16 text-center">
+              <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                <i class="fa fa-users text-2xl text-neutral"></i>
+              </div>
+              <h3 class="text-lg font-medium mb-1">暂无用户数据</h3>
+              <p class="text-neutral max-w-md mx-auto">暂无符合条件的用户信息</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      const roleMap = {
+        'STUDENT': '学生',
+        'COLLEGE_ADMIN': '学院管理员',
+        'UNIVERSITY_ADMIN': '大学管理员'
+      };
+
+      users.forEach((user, index) => {
+        const row = document.createElement('tr');
+        row.className = 'border-b border-gray-100 table-row-hover';
+        row.innerHTML = `
+          <td class="px-6 py-4">${(userPageState.page - 1) * userPageState.per_page + index + 1}</td>
+          <td class="px-6 py-4">${user.username || '-'}</td>
+          <td class="px-6 py-4">${user.real_name || '-'}</td>
+          <td class="px-6 py-4">${roleMap[user.role] || user.role}</td>
+          <td class="px-6 py-4">${user.college_name || '-'}</td>
+          <td class="px-6 py-4 flex gap-2">
+            <button
+              class="btn btn-outline edit-user-btn text-sm"
+              data-id="${user.user_id}"
+            >
+              <i class="fa fa-edit mr-1"></i> 编辑
+            </button>
+            <button
+              class="btn btn-danger delete-btn text-sm"
+              data-id="${user.user_id}"
+              data-type="user"
+            >
+              <i class="fa fa-trash-o mr-1"></i> 删除
+            </button>
+          </td>
+        `;
+
+        userTableBody.appendChild(row);
+      });
+
+      bindDeleteButtons();
+      bindEditUserButtons();
+    }
+
+    function bindEditUserButtons() {
+      document.querySelectorAll('.edit-user-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const userId = e.currentTarget.getAttribute('data-id');
+          openEditUserModal(userId);
+        });
+      });
+    }
+
+    async function openEditUserModal(userId) {
+      try {
+        const response = await fetch(`/university_admin/api/users/${userId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.code === 200) {
+            const user = data.data;
+            currentEditUserId = userId;
+            
+            document.getElementById('edit-username').value = user.username || '';
+            document.getElementById('edit-real-name').value = user.real_name || '';
+            document.getElementById('edit-role').value = user.role || 'STUDENT';
+            document.getElementById('edit-college').value = user.college_id || '';
+            document.getElementById('edit-password').value = '';
+            
+            editUserModal.classList.remove('hidden');
+          }
+        } else {
+          // 如果GET接口不存在，直接使用当前用户数据
+          showToast('无法获取用户详情，请手动填写', 'error');
+          currentEditUserId = userId;
+          editUserModal.classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error('获取用户详情失败:', error);
+        showToast('无法获取用户详情', 'error');
+      }
+    }
+
+    async function handleEditUserSubmit(e) {
+      e.preventDefault();
+      
+      try {
+        const userData = {
+          username: document.getElementById('edit-username').value.trim(),
+          real_name: document.getElementById('edit-real-name').value.trim(),
+          role: document.getElementById('edit-role').value,
+          college_id: parseInt(document.getElementById('edit-college').value),
+        };
+        
+        const password = document.getElementById('edit-password').value.trim();
+        if (password) {
+          // 验证密码长度
+          if (password.length < 6) {
+            showToast('密码长度不能小于6位', 'error');
+            return;
+          }
+          userData.password = password;
+        }
+
+        const response = await fetch(`/university_admin/api/users/${currentEditUserId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData)
+        });
+
+        const data = await response.json();
+
+        if (data.code === 200) {
+          showToast('用户信息更新成功');
+          editUserModal.classList.add('hidden');
+          fetchUsers();
+        } else {
+          showToast('更新失败: ' + data.message, 'error');
+        }
+      } catch (error) {
+        console.error('更新用户信息失败:', error);
+        showToast('网络错误，更新失败', 'error');
+      }
+    }
+
+    // ==================== 论文管理功能 ====================
+    async function fetchCategories() {
+      try {
+        const response = await fetch('/university_admin/api/categories', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.code === 200) {
+          const categories = data.data;
+          paperCategorySelect.innerHTML = '<option value="">所有分类</option>';
+          paperCategoryModalSelect.innerHTML = '<option value="">请选择分类</option>';
+          
+          categories.forEach(category => {
+            const option1 = document.createElement('option');
+            option1.value = category.category_id;
+            option1.textContent = category.name;
+            paperCategorySelect.appendChild(option1);
+            
+            const option2 = document.createElement('option');
+            option2.value = category.category_id;
+            option2.textContent = category.name;
+            paperCategoryModalSelect.appendChild(option2);
+          });
+        }
+      } catch (error) {
+        console.error('获取分类失败:', error);
+      }
+    }
+
+    async function fetchPapers() {
+      try {
+        paperTableBody.innerHTML = `
+          <tr>
+            <td colspan="5" class="px-6 py-12 text-center text-neutral">
+              <div class="flex flex-col items-center">
+                <i class="fa fa-spinner fa-spin text-primary text-2xl mb-3"></i>
+                <span>加载中...</span>
+              </div>
+            </td>
+          </tr>
+        `;
+
+        const params = new URLSearchParams({
+          page: paperPageState.page,
+          per_page: paperPageState.per_page,
+          search: paperPageState.search,
+        });
+        
+        if (paperPageState.category_id) {
+          params.append('category_id', paperPageState.category_id);
+        }
+
+        const response = await fetch(`/university_admin/api/papers?${params.toString()}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.code === 200) {
+          renderPaperTable(data.data.papers);
+          paperPageState.total = data.data.total;
+          paperPageState.pages = data.data.pages;
+          
+          paperTotalCountEl.textContent = data.data.total;
+          paperPageInfo.textContent = `第 ${paperPageState.page} 页 / 共 ${paperPageState.pages} 页`;
+          
+          paperPrevPageBtn.disabled = paperPageState.page <= 1;
+          paperNextPageBtn.disabled = paperPageState.page >= paperPageState.pages;
+        } else {
+          showToast('获取论文列表失败: ' + data.message, 'error');
+          renderErrorState('paper-table-body', '数据加载失败: ' + data.message, 5);
+        }
+      } catch (error) {
+        console.error('获取论文列表失败:', error);
+        showToast('网络错误，无法获取论文列表', 'error');
+        renderErrorState('paper-table-body', '网络连接失败', 5);
+      }
+    }
+
+    function renderPaperTable(papers) {
+      paperTableBody.innerHTML = '';
+
+      if (papers.length === 0) {
+        paperTableBody.innerHTML = `
+          <tr>
+            <td colspan="5" class="px-6 py-16 text-center">
+              <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                <i class="fa fa-file-text-o text-2xl text-neutral"></i>
+              </div>
+              <h3 class="text-lg font-medium mb-1">暂无论文数据</h3>
+              <p class="text-neutral max-w-md mx-auto">点击"添加论文"按钮添加新论文</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      papers.forEach((paper, index) => {
+        const row = document.createElement('tr');
+        row.className = 'border-b border-gray-100 table-row-hover';
+        row.innerHTML = `
+          <td class="px-6 py-4">${(paperPageState.page - 1) * paperPageState.per_page + index + 1}</td>
+          <td class="px-6 py-4 max-w-md">
+            <a href="${paper.pdf_url}" target="_blank" class="text-primary hover:underline truncate block">
+              ${paper.title || '-'}
+            </a>
+          </td>
+          <td class="px-6 py-4">${paper.arxiv_id || '-'}</td>
+          <td class="px-6 py-4">${paper.category_name || '-'}</td>
+          <td class="px-6 py-4">
+            <button
+              class="btn btn-danger delete-btn"
+              data-id="${paper.paper_id}"
+              data-type="paper"
+            >
+              <i class="fa fa-trash-o mr-1"></i> 删除
+            </button>
+          </td>
+        `;
+
+        paperTableBody.appendChild(row);
+      });
+
+      bindDeleteButtons();
+    }
+
+    async function addPaper(paperData) {
+      try {
+        const response = await fetch('/university_admin/api/papers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(paperData)
+        });
+
+        const data = await response.json();
+
+        if (data.code === 200) {
+          showToast('论文添加成功');
+          addPaperModal.classList.add('hidden');
+          fetchPapers();
+        } else {
+          showToast('添加论文失败: ' + data.message, 'error');
+        }
+      } catch (error) {
+        console.error('添加论文失败:', error);
+        showToast('网络错误，添加论文失败', 'error');
+      }
+    }
+
+    // ==================== 通用功能 ====================
+    function bindDeleteButtons() {
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          currentDeleteId = e.currentTarget.getAttribute('data-id');
+          currentDeleteType = e.currentTarget.getAttribute('data-type');
+          
+          switch(currentDeleteType) {
+            case 'history':
+              deleteModalMessage.textContent = '您确定要删除这条浏览记录吗？此操作不可撤销。';
+              break;
+            case 'paper':
+              deleteModalMessage.textContent = '您确定要删除该论文吗？此操作不可撤销。';
+              break;
+            case 'user':
+              deleteModalMessage.textContent = '您确定要删除该用户吗？此操作不可撤销，将同时删除该用户的所有浏览记录。';
+              break;
+          }
+          
+          deleteModal.classList.remove('hidden');
+        });
+      });
+    }
+
+    async function handleConfirmDelete() {
+      try {
+        let url = '';
+        
+        switch(currentDeleteType) {
+          case 'history':
+            url = `/university_admin/api/click-history/${currentDeleteId}?user_id=${currentUser.user_id}`;
+            break;
+          case 'paper':
+            url = `/university_admin/api/papers/${currentDeleteId}`;
+            break;
+          case 'user':
+            url = `/university_admin/api/users/${currentDeleteId}`;
+            break;
+        }
+
+        const response = await fetch(url, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.code === 200) {
+          showToast('删除成功');
+          deleteModal.classList.add('hidden');
+          
+          switch(currentDeleteType) {
+            case 'history':
+              fetchClickHistory();
+              break;
+            case 'paper':
+              fetchPapers();
+              break;
+            case 'user':
+              fetchUsers();
+              break;
+          }
+        } else {
+          showToast('删除失败: ' + data.message, 'error');
+        }
+      } catch (error) {
+        console.error('删除失败:', error);
+        showToast('网络错误，删除失败', 'error');
+      }
+    }
+
+    function handleAddPaperSubmit(e) {
+      e.preventDefault();
+      
+      const paperData = {
+        title: document.getElementById('paper-title').value.trim(),
+        arxiv_id: document.getElementById('paper-arxiv-id').value.trim(),
+        category_id: parseInt(document.getElementById('paper-category').value),
+        doi: document.getElementById('paper-doi').value.trim(),
+        abstract: document.getElementById('paper-abstract').value.trim(),
+        pdf_url: document.getElementById('paper-pdf-url').value.trim()
+      };
+      
+      addPaper(paperData);
+    }
+
+    // 显示提示消息
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `fixed bottom-6 right-6 px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 z-50 transition-all duration-300 transform translate-y-10 opacity-0`;
+
+      if (type === 'success') {
+        toast.classList.add('bg-green-50', 'text-green-600', 'border', 'border-green-200');
+        toast.innerHTML = `<i class="fa fa-check-circle"></i><span>${message}</span>`;
+      } else {
+        toast.classList.add('bg-red-50', 'text-red-600', 'border', 'border-red-200');
+        toast.innerHTML = `<i class="fa fa-exclamation-circle"></i><span>${message}</span>`;
+      }
+
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-10', 'opacity-0');
+      }, 10);
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-10', 'opacity-0');
+        setTimeout(() => {
+          document.body.removeChild(toast);
+        }, 300);
+      }, 3000);
+    }
+  </script>
 </body>
 </html>
