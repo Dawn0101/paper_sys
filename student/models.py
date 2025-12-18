@@ -3,7 +3,7 @@ from user.models import db
 from datetime import datetime
 
 
-class PaperClick(db.Model):
+class PaperClick2(db.Model):
     __tablename__ = 'paper_clicks'
 
     click_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
@@ -26,7 +26,7 @@ class PaperClick(db.Model):
         }
 
 
-class Paper(db.Model):
+class Paper2(db.Model):
     __tablename__ = 'papers'
 
     paper_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -53,7 +53,7 @@ class Paper(db.Model):
         }
 
 
-class Category(db.Model):
+class Category2(db.Model):
     __tablename__ = 'categories'
 
     category_id = db.Column(db.Integer, primary_key=True, autoincrement=True)

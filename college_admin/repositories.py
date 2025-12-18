@@ -1,6 +1,9 @@
 # college_admin/repositories.py
 from user.models import db, User, Role, College
-from student.models import PaperClick, Paper, Category
+
+# user.models和student.models中模型冲突，优先选择
+from user.models import PaperClick, Paper, Category
+
 from datetime import datetime, date
 from sqlalchemy import func, distinct, and_, or_
 import logging

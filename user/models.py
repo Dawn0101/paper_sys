@@ -91,7 +91,7 @@ class UserTask(db.Model):
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
     
-
+# 新增三个类，用于论文管理
 class Category(db.Model):
     __tablename__ = 'categories'
     
@@ -126,14 +126,16 @@ class PaperClick(db.Model):
             "user_id": self.user_id,
             "paper_id": self.paper_id,
             "college_id": self.college_id,
-            "click_time": self.click_time.isoformat() + 'Z' if self.click_time else None
+
+            # FHR版修改
+            'paper_title': self.paper.title if self.paper else None,
+            'click_time': self.click_time.strftime('%Y-%m-%d %H:%M:%S'),
+            'pdf_url': self.paper.pdf_url if self.paper else None
         }
 
     def __repr__(self):
         return f"<PaperClick(user_id={self.user_id}, paper_id={self.paper_id}, time={self.click_time})>"
     
-
-
 
 # ===== 新增：论文相关模型 =====
 class Paper(db.Model):

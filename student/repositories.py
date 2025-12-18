@@ -1,5 +1,6 @@
 # student/repositories.py
-from .models import db, PaperClick, Paper, Category
+from user.models import db, PaperClick, Paper, Category
+
 from sqlalchemy import func
 
 
