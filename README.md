@@ -151,7 +151,7 @@ python app.py
 
 - 1️⃣ 公共界面：search ❌ || settings ✅ || login ✅ || register ✅ || homeview ✅
 - 2️⃣ student ：console ✅ || overview ✅  || star ❌
-- 3️⃣ college_admin ：console ❌ || overview ❌
+- 3️⃣ college_admin ：console ✅ || overview ✅
 - 4️⃣ university_admin ：console ❌ || overview ❌
 
 ---
