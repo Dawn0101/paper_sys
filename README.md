@@ -1,6 +1,5 @@
 # 论文管理系统（Paper Management System）
 
-> 数据库综合实验 · 课程大作业  
 > 基于 Flask + 原生 HTML/CSS/JS 的前后端分离系统
 
 [![Python](https://img.shields.io/badge/Python-3.12-blue)]()
