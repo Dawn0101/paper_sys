@@ -249,7 +249,7 @@ particlesJS("particles-js", {
   });
   
   // 添加扇形标签
-  const labelTexts = [ "Overview",'search', "Settings", "Console"];  // 自定义标签文本
+  const labelTexts = [ "Overview",'Search', "Settings", "Console"];  // 自定义标签文本
   
   // 初始化标签数组
   let labels = [];

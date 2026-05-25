@@ -1,10 +1,13 @@
 # user/repositories.py
+from __future__ import annotations
+
 from datetime import date
 from .models import User, Role, College, UserTask, db
 
 #**********新增代码********
 from .models import Paper, Category
 from sqlalchemy import and_, or_, func
+
 
 
 
